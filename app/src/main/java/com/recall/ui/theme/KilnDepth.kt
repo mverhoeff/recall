@@ -124,6 +124,9 @@ fun ShadowLayer.resolve(colors: KilnColors) = ResolvedLayer(x, y, blur, spread, 
 
 private val settle = CubicBezierEasing(0.22f, 1f, 0.36f, 1f)
 
+private val OnColourShade = Color.Black.copy(alpha = 0.3f)
+private val OnColourLight = Color.White.copy(alpha = 0.3f)
+
 @Composable
 fun Modifier.kilnDepth(
     depth: Depth,
@@ -132,6 +135,7 @@ fun Modifier.kilnDepth(
     colors: KilnColors,
     animate: Boolean = true,
     animationSpec: AnimationSpec<Float> = tween(260, easing = settle),
+    onColour: Boolean = false,
 ): Modifier {
     // Only the depth animates. Colours are looked up while drawing, so a theme switch recolours
     // the shadows in the same frame as the fill instead of fading over from the old palette.
@@ -154,7 +158,13 @@ fun Modifier.kilnDepth(
         }
     }
 
-    fun current(slot: Int) = lerp(from[slot].resolve(colors), to[slot].resolve(colors), progress.value)
+    // The clay's own shade and highlight are tuned for the pale ground; on a strong fill the shade can be
+    // lighter than the fill itself, so a dip on accent or pop is shaded with plain black and white.
+    val inset = if (onColour) colors.copy(shadowDark = OnColourShade, shadowLight = OnColourLight) else colors
+    fun current(slot: Int): ResolvedLayer {
+        val palette = if (slot >= 2) inset else colors
+        return lerp(from[slot].resolve(palette), to[slot].resolve(palette), progress.value)
+    }
     // A slot that is empty at both ends of the animation is left out of the chain.
     fun used(slot: Int) = !from[slot].isZero || !to[slot].isZero
 

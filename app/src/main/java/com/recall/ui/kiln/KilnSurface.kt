@@ -61,7 +61,14 @@ fun KilnSurface(
     Box(
         modifier
             .then(interaction)
-            .kilnDepth(resolved, shape, fill, colors, animationSpec = press.depthSpec)
+            .kilnDepth(
+                resolved,
+                shape,
+                fill,
+                colors,
+                animationSpec = press.depthSpec,
+                onColour = tone == SurfaceTone.Accent || tone == SurfaceTone.Pop,
+            )
             .then(if (onClick != null) Modifier.kilnPressable(interactionSource, onClick = onClick) else Modifier),
     ) {
         CompositionLocalProvider(LocalOnGround provides false, LocalContentColor provides contentColor) {

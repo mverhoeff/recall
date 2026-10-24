@@ -119,7 +119,14 @@ private fun ButtonFrame(
                 scaleX = press.scale
                 scaleY = press.scale
             }
-            .kilnDepth(resolved, Pill, fill, colors, animationSpec = press.depthSpec)
+            .kilnDepth(
+                resolved,
+                Pill,
+                fill,
+                colors,
+                animationSpec = press.depthSpec,
+                onColour = variant == ButtonVariant.Primary || variant == ButtonVariant.Pop,
+            )
             .kilnPressable(interactionSource, enabled = enabled, onClick = onClick)
             .height(size.height)
             .widthIn(min = size.height)

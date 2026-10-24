@@ -70,6 +70,7 @@ fun KilnToggle(
                     CircleShape,
                     lerp(trackRest, colors.accent, fill),
                     colors,
+                    onColour = checked,
                 ),
         ) {
             Box(
