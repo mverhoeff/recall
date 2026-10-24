@@ -1,5 +1,6 @@
 package com.recall.ui.theme
 
+import android.graphics.BlurMaskFilter
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.CubicBezierEasing
@@ -14,11 +15,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.ShadowScope
-import androidx.compose.ui.draw.dropShadow
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.innerShadow
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.drawOutline
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.lerp as lerpColor
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
@@ -153,10 +159,35 @@ fun Modifier.kilnDepth(
     fun used(slot: Int) = !from[slot].isZero || !to[slot].isZero
 
     var m = this
-    for (slot in 0..1) if (used(slot)) m = m.dropShadow(shape) { set(current(slot)) }
+    for (slot in 0..1) if (used(slot)) m = m.outerShadow(shape) { current(slot) }
     m = m.background(fill, shape)
     for (slot in 2..3) if (used(slot)) m = m.innerShadow(shape) { set(current(slot)) }
     return m
+}
+
+/**
+ * Drop shadow drawn with the platform blur. Compose's dropShadow renders into a bitmap only one blur
+ * radius larger than the shape, which cuts the soft tail of big shadows off in a visible straight edge.
+ */
+private fun Modifier.outerShadow(shape: Shape, layer: () -> ResolvedLayer) = drawWithCache {
+    val paint = Paint()
+    var filterRadius = -1f
+    onDrawBehind {
+        val current = layer()
+        if (current.isZero) return@onDrawBehind
+        val radius = (current.blur * BLUR_SCALE).dp.toPx()
+        if (radius != filterRadius) {
+            paint.asFrameworkPaint().maskFilter = if (radius > 0f) BlurMaskFilter(radius, BlurMaskFilter.Blur.NORMAL) else null
+            filterRadius = radius
+        }
+        paint.color = current.color
+        val spread = current.spread.dp.toPx()
+        val grown = Size((size.width + spread * 2).coerceAtLeast(0f), (size.height + spread * 2).coerceAtLeast(0f))
+        val outline = shape.createOutline(grown, layoutDirection, this)
+        translate(current.x.dp.toPx() - spread, current.y.dp.toPx() - spread) {
+            drawIntoCanvas { it.drawOutline(outline, paint) }
+        }
+    }
 }
 
 private fun ShadowScope.set(layer: ResolvedLayer) {
