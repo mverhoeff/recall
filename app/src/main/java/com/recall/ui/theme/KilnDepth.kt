@@ -31,7 +31,9 @@ enum class Depth { Flat, Mold1, Mold2, Mold3, Float1, Float2, Float3, DipSm, Dip
 enum class ShadowRole { ShadowDark, ShadowLight, InnerLight, InnerShade }
 
 @Immutable
-data class ShadowLayer(val x: Float, val y: Float, val blur: Float, val spread: Float, val role: ShadowRole)
+data class ShadowLayer(val x: Float, val y: Float, val blur: Float, val spread: Float, val role: ShadowRole) {
+    val isZero get() = x == 0f && y == 0f && blur == 0f && spread == 0f
+}
 
 @Immutable
 data class DepthSpec(val s1: ShadowLayer, val s2: ShadowLayer, val s3: ShadowLayer, val s4: ShadowLayer) {
@@ -125,7 +127,9 @@ fun Modifier.kilnDepth(
     animate: Boolean = true,
     animationSpec: AnimationSpec<Float> = tween(260, easing = settle),
 ): Modifier {
-    val target = depth.spec().layers.map { it.resolve(colors) }
+    // Only the depth animates. Colours are looked up while drawing, so a theme switch recolours
+    // the shadows in the same frame as the fill instead of fading over from the old palette.
+    val target = depth.spec().layers
     var from by remember { mutableStateOf(target) }
     var to by remember { mutableStateOf(target) }
     val progress = remember { Animatable(1f) }
@@ -144,7 +148,7 @@ fun Modifier.kilnDepth(
         }
     }
 
-    fun current(slot: Int) = lerp(from[slot], to[slot], progress.value)
+    fun current(slot: Int) = lerp(from[slot].resolve(colors), to[slot].resolve(colors), progress.value)
     // A slot that is empty at both ends of the animation is left out of the chain.
     fun used(slot: Int) = !from[slot].isZero || !to[slot].isZero
 
