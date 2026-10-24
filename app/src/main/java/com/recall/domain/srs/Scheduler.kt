@@ -41,6 +41,16 @@ object Scheduler {
         }
     }
 
+    /** When the card would come back after [grade], as shown under the flashcard grade buttons. */
+    fun previewLabel(state: ReviewState, grade: Grade, now: Instant, zone: ZoneId): String {
+        val next = schedule(state, grade, now, zone)
+        if (next.phase == Phase.REVIEW) {
+            return if (next.intervalDays == 1) "1 day" else "${next.intervalDays} days"
+        }
+        val minutes = Duration.ofMillis(next.dueAt - now.toEpochMilli()).toMinutes()
+        return if (minutes <= 1) "< 1 min" else "$minutes min"
+    }
+
     /** Due cards are the ones in learning or review whose time comes up before today is over. */
     fun isDue(state: ReviewState, now: Instant, zone: ZoneId): Boolean =
         state.phase != Phase.NEW && state.dueAt <= endOfDay(now, zone)

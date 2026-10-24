@@ -151,6 +151,24 @@ class SchedulerTest {
         assertEquals(Instant.parse("2026-10-25T03:00:00Z").toEpochMilli(), next.dueAt)
     }
 
+    private fun preview(state: ReviewState, grade: Grade) = Scheduler.previewLabel(state, grade, now, zone)
+
+    @Test
+    fun previewsForANewCard() {
+        assertEquals("< 1 min", preview(new, Grade.AGAIN))
+        assertEquals("10 min", preview(new, Grade.HARD))
+        assertEquals("1 day", preview(new, Grade.GOOD))
+        assertEquals("4 days", preview(new, Grade.EASY))
+    }
+
+    @Test
+    fun previewsForAReviewCard() {
+        assertEquals("10 min", preview(review, Grade.AGAIN))
+        assertEquals("12 days", preview(review, Grade.HARD))
+        assertEquals("25 days", preview(review, Grade.GOOD))
+        assertEquals("33 days", preview(review, Grade.EASY))
+    }
+
     @Test
     fun dueMeansBeforeTodayIsOver() {
         val endOfToday = millis(2026, 10, 24, 0, 0) - 1
