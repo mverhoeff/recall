@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Recall notification icon: the same glyph, cropped to fill 24dp. White on transparent. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="54" android:viewportHeight="54">
+    <group android:translateX="-31" android:translateY="-26">
+    <group android:rotation="8" android:pivotX="58" android:pivotY="53">
+        <path android:pathData="M49,31H67A8,8 0 0 1 75,39V67A8,8 0 0 1 67,75H49A8,8 0 0 1 41,67V39A8,8 0 0 1 49,31Z" android:fillColor="#00000000" android:strokeColor="#FFFFFF"
+            android:strokeWidth="3.4" android:strokeLineCap="round" android:strokeLineJoin="round" />
+        <path android:pathData="M62.5,45.21A9,9 0 1,1 50.21,48.5" android:fillColor="#00000000" android:strokeColor="#FFFFFF"
+            android:strokeWidth="3.2" android:strokeLineCap="round" android:strokeLineJoin="round" />
+        <path android:pathData="M52.01,45.38L52.9,51.44L46.32,47.64Z" android:fillColor="#00000000" android:strokeColor="#FFFFFF"
+            android:strokeWidth="3.2" android:strokeLineCap="round" android:strokeLineJoin="round" />
+    </group>
+    </group>
+</vector>

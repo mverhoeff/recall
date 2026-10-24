@@ -1,0 +1,646 @@
+{
+ "name": "Kiln",
+ "version": 1,
+ "color": {
+  "themes": [
+   {
+    "id": "light",
+    "name": "Slate light"
+   },
+   {
+    "id": "dark",
+    "name": "Slate dark"
+   },
+   {
+    "id": "terracotta",
+    "name": "Terracotta light"
+   },
+   {
+    "id": "terracotta-dark",
+    "name": "Terracotta dark"
+   },
+   {
+    "id": "sage",
+    "name": "Sage light"
+   },
+   {
+    "id": "sage-dark",
+    "name": "Sage dark"
+   },
+   {
+    "id": "ochre",
+    "name": "Ochre light"
+   },
+   {
+    "id": "ochre-dark",
+    "name": "Ochre dark"
+   }
+  ],
+  "tokens": [
+   {
+    "name": "bg",
+    "value": {
+     "light": "#DCE2E9",
+     "dark": "#1D242D",
+     "terracotta": "#E8D9CC",
+     "terracotta-dark": "#271C16",
+     "sage": "#DBE2D6",
+     "sage-dark": "#1C231D",
+     "ochre": "#E8DFCA",
+     "ochre-dark": "#24201A"
+    },
+    "usage": "The ground: page background. Molded surfaces use this same colour, so depth comes only from light."
+   },
+   {
+    "name": "surface",
+    "value": {
+     "light": "#DCE2E9",
+     "dark": "#1D242D",
+     "terracotta": "#E8D9CC",
+     "terracotta-dark": "#271C16",
+     "sage": "#DBE2D6",
+     "sage-dark": "#1C231D",
+     "ochre": "#E8DFCA",
+     "ochre-dark": "#24201A"
+    },
+    "usage": "Molded surfaces (cards, panels). Equal to bg on purpose: the shape rises out of the ground."
+   },
+   {
+    "name": "surface-2",
+    "value": {
+     "light": "#E6EBF0",
+     "dark": "#252E39",
+     "terracotta": "#F1E6DC",
+     "terracotta-dark": "#33251E",
+     "sage": "#E6EBE2",
+     "sage-dark": "#252D26",
+     "ochre": "#F1EBDC",
+     "ochre-dark": "#2E2920"
+    },
+    "usage": "Floating objects (buttons, chips, tiles, active tab and nav item, nested cards). Slightly lighter, so a float reads as a separate piece resting on top."
+   },
+   {
+    "name": "well",
+    "value": {
+     "light": "#DCE2E9",
+     "dark": "#1D242D",
+     "terracotta": "#E8D9CC",
+     "terracotta-dark": "#271C16",
+     "sage": "#DBE2D6",
+     "sage-dark": "#1C231D",
+     "ochre": "#E8DFCA",
+     "ochre-dark": "#24201A"
+    },
+    "usage": "Dipped areas (inputs, tracks, tab bars, badges). Equal to bg: the area is pressed into the same clay."
+   },
+   {
+    "name": "ink",
+    "value": {
+     "light": "#1C2531",
+     "dark": "#E6EBF1",
+     "terracotta": "#2D1D15",
+     "terracotta-dark": "#F4E6DB",
+     "sage": "#1D281E",
+     "sage-dark": "#E3EBE1",
+     "ochre": "#2A2314",
+     "ochre-dark": "#F1EAD8"
+    },
+    "usage": "Primary text and icons on bg, surface, surface-2 and well in every theme."
+   },
+   {
+    "name": "ink-2",
+    "value": {
+     "light": "#47566A",
+     "dark": "#A0AEBF",
+     "terracotta": "#664A3C",
+     "terracotta-dark": "#C6A997",
+     "sage": "#465744",
+     "sage-dark": "#A2B3A0",
+     "ochre": "#5B503C",
+     "ochre-dark": "#BEB298"
+    },
+    "usage": "Secondary text, labels and captions on bg, surface, surface-2 and well (4.5:1 in every theme)."
+   },
+   {
+    "name": "line",
+    "value": {
+     "light": "rgba(40,56,78,.14)",
+     "dark": "rgba(200,215,235,.10)",
+     "terracotta": "rgba(100,55,30,.15)",
+     "terracotta-dark": "rgba(240,200,170,.10)",
+     "sage": "rgba(40,70,40,.14)",
+     "sage-dark": "rgba(200,230,200,.10)",
+     "ochre": "rgba(90,70,30,.15)",
+     "ochre-dark": "rgba(240,220,170,.10)"
+    },
+    "usage": "Hairline dividers and dashed outlines only; never a card border."
+   },
+   {
+    "name": "accent",
+    "value": {
+     "light": "#4C6A8C",
+     "dark": "#8EAACB",
+     "terracotta": "#AE4F2A",
+     "terracotta-dark": "#E38A61",
+     "sage": "#4B6E51",
+     "sage-dark": "#92B898",
+     "ochre": "#86651B",
+     "ochre-dark": "#D8B25E"
+    },
+    "usage": "Primary actions, selected state, progress fills, focus ring. Use one accent-filled element per view."
+   },
+   {
+    "name": "accent-ink",
+    "value": {
+     "light": "#FFFFFF",
+     "dark": "#0F1B29",
+     "terracotta": "#FFFFFF",
+     "terracotta-dark": "#2A1209",
+     "sage": "#FFFFFF",
+     "sage-dark": "#112015",
+     "ochre": "#FFFFFF",
+     "ochre-dark": "#241B07"
+    },
+    "usage": "Text and icons on an accent fill."
+   },
+   {
+    "name": "accent-soft",
+    "value": {
+     "light": "#C6D3E2",
+     "dark": "#33475E",
+     "terracotta": "#EBC3AE",
+     "terracotta-dark": "#5A3322",
+     "sage": "#C3D4C2",
+     "sage-dark": "#34493A",
+     "ochre": "#E3D2A4",
+     "ochre-dark": "#4E4224"
+    },
+    "usage": "Quiet accent fills: avatars, soft tiles, illustration pieces. Text on it is ink."
+   },
+   {
+    "name": "pop",
+    "value": {
+     "light": "#B85C38",
+     "dark": "#E08A63",
+     "terracotta": "#3F6283",
+     "terracotta-dark": "#93B3D3",
+     "sage": "#A9542F",
+     "sage-dark": "#E08A63",
+     "ochre": "#4C6A8C",
+     "ochre-dark": "#8EAACB"
+    },
+    "usage": "The complementary pop for rare emphasis (destructive buttons, one illustration piece). At most one per view."
+   },
+   {
+    "name": "pop-ink",
+    "value": {
+     "light": "#FFFFFF",
+     "dark": "#2A140A",
+     "terracotta": "#FFFFFF",
+     "terracotta-dark": "#102030",
+     "sage": "#FFFFFF",
+     "sage-dark": "#2A140A",
+     "ochre": "#FFFFFF",
+     "ochre-dark": "#0F1B29"
+    },
+    "usage": "Text and icons on a pop fill."
+   },
+   {
+    "name": "shadow-dark",
+    "value": {
+     "light": "rgba(86,106,138,.42)",
+     "dark": "rgba(5,8,12,.62)",
+     "terracotta": "rgba(140,90,62,.42)",
+     "terracotta-dark": "rgba(8,4,2,.62)",
+     "sage": "rgba(88,110,86,.42)",
+     "sage-dark": "rgba(3,6,4,.62)",
+     "ochre": "rgba(132,110,62,.42)",
+     "ochre-dark": "rgba(6,5,2,.62)"
+    },
+    "usage": "The dark half of the molded light, cast bottom-right. Used inside the shadow tokens; not a fill."
+   },
+   {
+    "name": "shadow-light",
+    "value": {
+     "light": "rgba(255,255,255,.92)",
+     "dark": "rgba(120,150,190,.10)",
+     "terracotta": "rgba(255,248,240,.9)",
+     "terracotta-dark": "rgba(210,150,115,.09)",
+     "sage": "rgba(255,255,250,.9)",
+     "sage-dark": "rgba(140,180,140,.09)",
+     "ochre": "rgba(255,252,240,.9)",
+     "ochre-dark": "rgba(200,175,120,.09)"
+    },
+    "usage": "The light half of the molded light, cast top-left. Used inside the shadow tokens; not a fill."
+   },
+   {
+    "name": "inner-light",
+    "value": {
+     "light": "rgba(255,255,255,.55)",
+     "dark": "rgba(200,220,245,.06)",
+     "terracotta": "rgba(255,246,236,.55)",
+     "terracotta-dark": "rgba(255,220,195,.06)",
+     "sage": "rgba(255,255,250,.55)",
+     "sage-dark": "rgba(220,250,220,.06)",
+     "ochre": "rgba(255,252,240,.55)",
+     "ochre-dark": "rgba(255,240,200,.06)"
+    },
+    "usage": "Soft inner highlight that rounds the top of a surface. Used inside the shadow tokens."
+   },
+   {
+    "name": "inner-shade",
+    "value": {
+     "light": "rgba(70,92,124,.14)",
+     "dark": "rgba(0,0,0,.28)",
+     "terracotta": "rgba(130,76,48,.15)",
+     "terracotta-dark": "rgba(0,0,0,.28)",
+     "sage": "rgba(62,90,62,.14)",
+     "sage-dark": "rgba(0,0,0,.28)",
+     "ochre": "rgba(120,96,44,.14)",
+     "ochre-dark": "rgba(0,0,0,.28)"
+    },
+    "usage": "Soft inner shade on the lower edge, and the contact shadow of floats. Used inside the shadow tokens."
+   },
+   {
+    "name": "ok",
+    "value": {
+     "light": "#3B7650",
+     "dark": "#86C79A",
+     "terracotta": "#3B7650",
+     "terracotta-dark": "#86C79A",
+     "sage": "#2F6E44",
+     "sage-dark": "#86C79A",
+     "ochre": "#3B7650",
+     "ochre-dark": "#86C79A"
+    },
+    "usage": "Success text, badges and icons on bg, surface and well. On an ok fill use bg for the icon."
+   },
+   {
+    "name": "warn",
+    "value": {
+     "light": "#8E620E",
+     "dark": "#E2B65C",
+     "terracotta": "#8A5C0B",
+     "terracotta-dark": "#E2B65C",
+     "sage": "#8A5C0B",
+     "sage-dark": "#E2B65C",
+     "ochre": "#8A5C0B",
+     "ochre-dark": "#E2B65C"
+    },
+    "usage": "Warning text and badges on bg, surface and well."
+   },
+   {
+    "name": "err",
+    "value": {
+     "light": "#A63E2C",
+     "dark": "#EF907D",
+     "terracotta": "#A1321F",
+     "terracotta-dark": "#F09A86",
+     "sage": "#A63E2C",
+     "sage-dark": "#EF907D",
+     "ochre": "#A63E2C",
+     "ochre-dark": "#EF907D"
+    },
+    "usage": "Error text, badges and field outlines on bg, surface and well. On an err fill use bg for the icon."
+   }
+  ]
+ },
+ "type": {
+  "fonts": [],
+  "families": {
+   "display": "\"Baloo 2\", ui-rounded, system-ui, sans-serif",
+   "body": "\"Figtree\", system-ui, sans-serif",
+   "display-a": "\"Fredoka\", \"Nunito\", ui-rounded, system-ui, sans-serif",
+   "body-a": "\"Nunito\", ui-rounded, system-ui, sans-serif",
+   "display-c": "\"Young Serif\", Georgia, serif",
+   "body-c": "\"Instrument Sans\", system-ui, sans-serif"
+  },
+  "groups": [
+   {
+    "name": "Display",
+    "family": "display",
+    "styles": [
+     {
+      "name": "k-display",
+      "fontSize": "72px",
+      "lineHeight": 1.02,
+      "fontWeight": 700,
+      "letterSpacing": "-0.02em",
+      "sample": "Kiln",
+      "usage": "Hero numbers and names; 72–168px."
+     },
+     {
+      "name": "k-h1",
+      "fontSize": "44px",
+      "lineHeight": 1.08,
+      "fontWeight": 700,
+      "letterSpacing": "-0.02em",
+      "sample": "Shape it by hand",
+      "usage": "Page titles."
+     },
+     {
+      "name": "k-h2",
+      "fontSize": "30px",
+      "lineHeight": 1.12,
+      "fontWeight": 700,
+      "letterSpacing": "-0.02em",
+      "sample": "Fired at cone six",
+      "usage": "Section and card titles; questions in quiz screens."
+     },
+     {
+      "name": "k-h3",
+      "fontSize": "21px",
+      "lineHeight": 1.2,
+      "fontWeight": 700,
+      "letterSpacing": "-0.02em",
+      "sample": "Glaze firing",
+      "usage": "Small card titles, list headings."
+     }
+    ]
+   },
+   {
+    "name": "Text",
+    "family": "body",
+    "styles": [
+     {
+      "name": "k-body",
+      "fontSize": "16px",
+      "lineHeight": 1.55,
+      "fontWeight": 400,
+      "sample": "Soft volume carries hierarchy, so type can stay calm.",
+      "usage": "Running text."
+     },
+     {
+      "name": "k-small",
+      "fontSize": "14px",
+      "lineHeight": 1.45,
+      "fontWeight": 400,
+      "sample": "12 pieces loaded. Slow cool from 1000 °C.",
+      "usage": "Secondary text, list meta, captions."
+     },
+     {
+      "name": "k-label",
+      "fontSize": "12px",
+      "lineHeight": 1.2,
+      "fontWeight": 700,
+      "letterSpacing": "0.08em",
+      "sample": "DESIGN SYSTEM",
+      "usage": "Eyebrows and table headers, uppercased by bundle.css, in ink-2."
+     }
+    ]
+   }
+  ]
+ },
+ "spacing": {
+  "tokens": [
+   {
+    "name": "space-1",
+    "value": "4px",
+    "usage": "Icon-to-label gaps."
+   },
+   {
+    "name": "space-2",
+    "value": "8px",
+    "usage": "Gaps between chips and small controls."
+   },
+   {
+    "name": "space-3",
+    "value": "12px",
+    "usage": "List row gaps."
+   },
+   {
+    "name": "space-4",
+    "value": "16px",
+    "usage": "Field padding; gaps inside cards."
+   },
+   {
+    "name": "space-5",
+    "value": "24px",
+    "usage": "Card padding; gaps between cards."
+   },
+   {
+    "name": "space-6",
+    "value": "32px",
+    "usage": "Section panel padding."
+   },
+   {
+    "name": "space-7",
+    "value": "48px",
+    "usage": "Gaps between page sections."
+   },
+   {
+    "name": "space-8",
+    "value": "64px",
+    "usage": "Page gutters on desktop."
+   }
+  ]
+ },
+ "radius": {
+  "tokens": [
+   {
+    "name": "radius-xs",
+    "value": "8px",
+    "usage": "Checkbox boxes, chart bar feet."
+   },
+   {
+    "name": "radius-sm",
+    "value": "12px",
+    "usage": "Small tiles."
+   },
+   {
+    "name": "radius-md",
+    "value": "18px",
+    "usage": "Inputs, tiles, list rows."
+   },
+   {
+    "name": "radius-lg",
+    "value": "26px",
+    "usage": "Cards."
+   },
+   {
+    "name": "radius-xl",
+    "value": "38px",
+    "usage": "Section panels, sheets, hero cards."
+   },
+   {
+    "name": "radius-pill",
+    "value": "999px",
+    "usage": "Buttons, chips, badges, toggles, tab bars."
+   }
+  ]
+ },
+ "shadow": {
+  "note": "Every depth token has the same four layers in the same order (outer dark, outer light or contact, inner light, inner shade), so any state can transition smoothly into any other. Mold only from the ground; inside a raised surface, float or dip.",
+  "tokens": [
+   {
+    "name": "flat",
+    "value": {
+     "light": "0 0 0 0 rgba(86,106,138,.42), 0 0 0 0 rgba(255,255,255,.92), inset 0 0 0 0 rgba(255,255,255,.55), inset 0 0 0 0 rgba(70,92,124,.14)",
+     "dark": "0 0 0 0 rgba(5,8,12,.62), 0 0 0 0 rgba(120,150,190,.10), inset 0 0 0 0 rgba(200,220,245,.06), inset 0 0 0 0 rgba(0,0,0,.28)",
+     "terracotta": "0 0 0 0 rgba(140,90,62,.42), 0 0 0 0 rgba(255,248,240,.9), inset 0 0 0 0 rgba(255,246,236,.55), inset 0 0 0 0 rgba(130,76,48,.15)",
+     "terracotta-dark": "0 0 0 0 rgba(8,4,2,.62), 0 0 0 0 rgba(210,150,115,.09), inset 0 0 0 0 rgba(255,220,195,.06), inset 0 0 0 0 rgba(0,0,0,.28)",
+     "sage": "0 0 0 0 rgba(88,110,86,.42), 0 0 0 0 rgba(255,255,250,.9), inset 0 0 0 0 rgba(255,255,250,.55), inset 0 0 0 0 rgba(62,90,62,.14)",
+     "sage-dark": "0 0 0 0 rgba(3,6,4,.62), 0 0 0 0 rgba(140,180,140,.09), inset 0 0 0 0 rgba(220,250,220,.06), inset 0 0 0 0 rgba(0,0,0,.28)",
+     "ochre": "0 0 0 0 rgba(132,110,62,.42), 0 0 0 0 rgba(255,252,240,.9), inset 0 0 0 0 rgba(255,252,240,.55), inset 0 0 0 0 rgba(120,96,44,.14)",
+     "ochre-dark": "0 0 0 0 rgba(6,5,2,.62), 0 0 0 0 rgba(200,175,120,.09), inset 0 0 0 0 rgba(255,240,200,.06), inset 0 0 0 0 rgba(0,0,0,.28)"
+    },
+    "usage": "Zero depth with the same four layers: the start and end of every rise/dip animation."
+   },
+   {
+    "name": "mold-1",
+    "value": {
+     "light": "4px 4px 10px 0 rgba(86,106,138,.42), -4px -4px 10px 0 rgba(255,255,255,.92), inset 1px 1px 2px 0 rgba(255,255,255,.55), inset -1px -2px 4px 0 rgba(70,92,124,.14)",
+     "dark": "4px 4px 10px 0 rgba(5,8,12,.62), -4px -4px 10px 0 rgba(120,150,190,.10), inset 1px 1px 2px 0 rgba(200,220,245,.06), inset -1px -2px 4px 0 rgba(0,0,0,.28)",
+     "terracotta": "4px 4px 10px 0 rgba(140,90,62,.42), -4px -4px 10px 0 rgba(255,248,240,.9), inset 1px 1px 2px 0 rgba(255,246,236,.55), inset -1px -2px 4px 0 rgba(130,76,48,.15)",
+     "terracotta-dark": "4px 4px 10px 0 rgba(8,4,2,.62), -4px -4px 10px 0 rgba(210,150,115,.09), inset 1px 1px 2px 0 rgba(255,220,195,.06), inset -1px -2px 4px 0 rgba(0,0,0,.28)",
+     "sage": "4px 4px 10px 0 rgba(88,110,86,.42), -4px -4px 10px 0 rgba(255,255,250,.9), inset 1px 1px 2px 0 rgba(255,255,250,.55), inset -1px -2px 4px 0 rgba(62,90,62,.14)",
+     "sage-dark": "4px 4px 10px 0 rgba(3,6,4,.62), -4px -4px 10px 0 rgba(140,180,140,.09), inset 1px 1px 2px 0 rgba(220,250,220,.06), inset -1px -2px 4px 0 rgba(0,0,0,.28)",
+     "ochre": "4px 4px 10px 0 rgba(132,110,62,.42), -4px -4px 10px 0 rgba(255,252,240,.9), inset 1px 1px 2px 0 rgba(255,252,240,.55), inset -1px -2px 4px 0 rgba(120,96,44,.14)",
+     "ochre-dark": "4px 4px 10px 0 rgba(6,5,2,.62), -4px -4px 10px 0 rgba(200,175,120,.09), inset 1px 1px 2px 0 rgba(255,240,200,.06), inset -1px -2px 4px 0 rgba(0,0,0,.28)"
+    },
+    "usage": "Molded, low: small items sitting directly on the ground (list rows, stat tiles)."
+   },
+   {
+    "name": "mold-2",
+    "value": {
+     "light": "9px 9px 22px 0 rgba(86,106,138,.42), -8px -8px 20px 0 rgba(255,255,255,.92), inset 2px 2px 4px 0 rgba(255,255,255,.55), inset -2px -3px 8px 0 rgba(70,92,124,.14)",
+     "dark": "9px 9px 22px 0 rgba(5,8,12,.62), -8px -8px 20px 0 rgba(120,150,190,.10), inset 2px 2px 4px 0 rgba(200,220,245,.06), inset -2px -3px 8px 0 rgba(0,0,0,.28)",
+     "terracotta": "9px 9px 22px 0 rgba(140,90,62,.42), -8px -8px 20px 0 rgba(255,248,240,.9), inset 2px 2px 4px 0 rgba(255,246,236,.55), inset -2px -3px 8px 0 rgba(130,76,48,.15)",
+     "terracotta-dark": "9px 9px 22px 0 rgba(8,4,2,.62), -8px -8px 20px 0 rgba(210,150,115,.09), inset 2px 2px 4px 0 rgba(255,220,195,.06), inset -2px -3px 8px 0 rgba(0,0,0,.28)",
+     "sage": "9px 9px 22px 0 rgba(88,110,86,.42), -8px -8px 20px 0 rgba(255,255,250,.9), inset 2px 2px 4px 0 rgba(255,255,250,.55), inset -2px -3px 8px 0 rgba(62,90,62,.14)",
+     "sage-dark": "9px 9px 22px 0 rgba(3,6,4,.62), -8px -8px 20px 0 rgba(140,180,140,.09), inset 2px 2px 4px 0 rgba(220,250,220,.06), inset -2px -3px 8px 0 rgba(0,0,0,.28)",
+     "ochre": "9px 9px 22px 0 rgba(132,110,62,.42), -8px -8px 20px 0 rgba(255,252,240,.9), inset 2px 2px 4px 0 rgba(255,252,240,.55), inset -2px -3px 8px 0 rgba(120,96,44,.14)",
+     "ochre-dark": "9px 9px 22px 0 rgba(6,5,2,.62), -8px -8px 20px 0 rgba(200,175,120,.09), inset 2px 2px 4px 0 rgba(255,240,200,.06), inset -2px -3px 8px 0 rgba(0,0,0,.28)"
+    },
+    "usage": "Molded, default: cards and section panels on the ground."
+   },
+   {
+    "name": "mold-3",
+    "value": {
+     "light": "16px 18px 38px 0 rgba(86,106,138,.42), -14px -14px 32px 0 rgba(255,255,255,.92), inset 3px 3px 6px 0 rgba(255,255,255,.55), inset -3px -5px 12px 0 rgba(70,92,124,.14)",
+     "dark": "16px 18px 38px 0 rgba(5,8,12,.62), -14px -14px 32px 0 rgba(120,150,190,.10), inset 3px 3px 6px 0 rgba(200,220,245,.06), inset -3px -5px 12px 0 rgba(0,0,0,.28)",
+     "terracotta": "16px 18px 38px 0 rgba(140,90,62,.42), -14px -14px 32px 0 rgba(255,248,240,.9), inset 3px 3px 6px 0 rgba(255,246,236,.55), inset -3px -5px 12px 0 rgba(130,76,48,.15)",
+     "terracotta-dark": "16px 18px 38px 0 rgba(8,4,2,.62), -14px -14px 32px 0 rgba(210,150,115,.09), inset 3px 3px 6px 0 rgba(255,220,195,.06), inset -3px -5px 12px 0 rgba(0,0,0,.28)",
+     "sage": "16px 18px 38px 0 rgba(88,110,86,.42), -14px -14px 32px 0 rgba(255,255,250,.9), inset 3px 3px 6px 0 rgba(255,255,250,.55), inset -3px -5px 12px 0 rgba(62,90,62,.14)",
+     "sage-dark": "16px 18px 38px 0 rgba(3,6,4,.62), -14px -14px 32px 0 rgba(140,180,140,.09), inset 3px 3px 6px 0 rgba(220,250,220,.06), inset -3px -5px 12px 0 rgba(0,0,0,.28)",
+     "ochre": "16px 18px 38px 0 rgba(132,110,62,.42), -14px -14px 32px 0 rgba(255,252,240,.9), inset 3px 3px 6px 0 rgba(255,252,240,.55), inset -3px -5px 12px 0 rgba(120,96,44,.14)",
+     "ochre-dark": "16px 18px 38px 0 rgba(6,5,2,.62), -14px -14px 32px 0 rgba(200,175,120,.09), inset 3px 3px 6px 0 rgba(255,240,200,.06), inset -3px -5px 12px 0 rgba(0,0,0,.28)"
+    },
+    "usage": "Molded, high: hero panels on the ground."
+   },
+   {
+    "name": "float-1",
+    "value": {
+     "light": "0 4px 10px -3px rgba(86,106,138,.42), 0 1px 2px 0 rgba(70,92,124,.14), inset 1px 1px 2px 0 rgba(255,255,255,.55), inset -1px -2px 4px 0 rgba(70,92,124,.14)",
+     "dark": "0 4px 10px -3px rgba(5,8,12,.62), 0 1px 2px 0 rgba(0,0,0,.28), inset 1px 1px 2px 0 rgba(200,220,245,.06), inset -1px -2px 4px 0 rgba(0,0,0,.28)",
+     "terracotta": "0 4px 10px -3px rgba(140,90,62,.42), 0 1px 2px 0 rgba(130,76,48,.15), inset 1px 1px 2px 0 rgba(255,246,236,.55), inset -1px -2px 4px 0 rgba(130,76,48,.15)",
+     "terracotta-dark": "0 4px 10px -3px rgba(8,4,2,.62), 0 1px 2px 0 rgba(0,0,0,.28), inset 1px 1px 2px 0 rgba(255,220,195,.06), inset -1px -2px 4px 0 rgba(0,0,0,.28)",
+     "sage": "0 4px 10px -3px rgba(88,110,86,.42), 0 1px 2px 0 rgba(62,90,62,.14), inset 1px 1px 2px 0 rgba(255,255,250,.55), inset -1px -2px 4px 0 rgba(62,90,62,.14)",
+     "sage-dark": "0 4px 10px -3px rgba(3,6,4,.62), 0 1px 2px 0 rgba(0,0,0,.28), inset 1px 1px 2px 0 rgba(220,250,220,.06), inset -1px -2px 4px 0 rgba(0,0,0,.28)",
+     "ochre": "0 4px 10px -3px rgba(132,110,62,.42), 0 1px 2px 0 rgba(120,96,44,.14), inset 1px 1px 2px 0 rgba(255,252,240,.55), inset -1px -2px 4px 0 rgba(120,96,44,.14)",
+     "ochre-dark": "0 4px 10px -3px rgba(6,5,2,.62), 0 1px 2px 0 rgba(0,0,0,.28), inset 1px 1px 2px 0 rgba(255,240,200,.06), inset -1px -2px 4px 0 rgba(0,0,0,.28)"
+    },
+    "usage": "Floating, low: buttons, chips, tiles, knobs, active tab and nav item, cards nested in cards."
+   },
+   {
+    "name": "float-2",
+    "value": {
+     "light": "0 10px 22px -8px rgba(86,106,138,.42), 0 2px 5px 0 rgba(70,92,124,.14), inset 2px 2px 4px 0 rgba(255,255,255,.55), inset -2px -3px 7px 0 rgba(70,92,124,.14)",
+     "dark": "0 10px 22px -8px rgba(5,8,12,.62), 0 2px 5px 0 rgba(0,0,0,.28), inset 2px 2px 4px 0 rgba(200,220,245,.06), inset -2px -3px 7px 0 rgba(0,0,0,.28)",
+     "terracotta": "0 10px 22px -8px rgba(140,90,62,.42), 0 2px 5px 0 rgba(130,76,48,.15), inset 2px 2px 4px 0 rgba(255,246,236,.55), inset -2px -3px 7px 0 rgba(130,76,48,.15)",
+     "terracotta-dark": "0 10px 22px -8px rgba(8,4,2,.62), 0 2px 5px 0 rgba(0,0,0,.28), inset 2px 2px 4px 0 rgba(255,220,195,.06), inset -2px -3px 7px 0 rgba(0,0,0,.28)",
+     "sage": "0 10px 22px -8px rgba(88,110,86,.42), 0 2px 5px 0 rgba(62,90,62,.14), inset 2px 2px 4px 0 rgba(255,255,250,.55), inset -2px -3px 7px 0 rgba(62,90,62,.14)",
+     "sage-dark": "0 10px 22px -8px rgba(3,6,4,.62), 0 2px 5px 0 rgba(0,0,0,.28), inset 2px 2px 4px 0 rgba(220,250,220,.06), inset -2px -3px 7px 0 rgba(0,0,0,.28)",
+     "ochre": "0 10px 22px -8px rgba(132,110,62,.42), 0 2px 5px 0 rgba(120,96,44,.14), inset 2px 2px 4px 0 rgba(255,252,240,.55), inset -2px -3px 7px 0 rgba(120,96,44,.14)",
+     "ochre-dark": "0 10px 22px -8px rgba(6,5,2,.62), 0 2px 5px 0 rgba(0,0,0,.28), inset 2px 2px 4px 0 rgba(255,240,200,.06), inset -2px -3px 7px 0 rgba(0,0,0,.28)"
+    },
+    "usage": "Floating, mid: hover state of floats, tooltips, popovers."
+   },
+   {
+    "name": "float-3",
+    "value": {
+     "light": "0 24px 46px -16px rgba(86,106,138,.42), 0 5px 12px -2px rgba(70,92,124,.14), inset 3px 3px 6px 0 rgba(255,255,255,.55), inset -3px -5px 12px 0 rgba(70,92,124,.14)",
+     "dark": "0 24px 46px -16px rgba(5,8,12,.62), 0 5px 12px -2px rgba(0,0,0,.28), inset 3px 3px 6px 0 rgba(200,220,245,.06), inset -3px -5px 12px 0 rgba(0,0,0,.28)",
+     "terracotta": "0 24px 46px -16px rgba(140,90,62,.42), 0 5px 12px -2px rgba(130,76,48,.15), inset 3px 3px 6px 0 rgba(255,246,236,.55), inset -3px -5px 12px 0 rgba(130,76,48,.15)",
+     "terracotta-dark": "0 24px 46px -16px rgba(8,4,2,.62), 0 5px 12px -2px rgba(0,0,0,.28), inset 3px 3px 6px 0 rgba(255,220,195,.06), inset -3px -5px 12px 0 rgba(0,0,0,.28)",
+     "sage": "0 24px 46px -16px rgba(88,110,86,.42), 0 5px 12px -2px rgba(62,90,62,.14), inset 3px 3px 6px 0 rgba(255,255,250,.55), inset -3px -5px 12px 0 rgba(62,90,62,.14)",
+     "sage-dark": "0 24px 46px -16px rgba(3,6,4,.62), 0 5px 12px -2px rgba(0,0,0,.28), inset 3px 3px 6px 0 rgba(220,250,220,.06), inset -3px -5px 12px 0 rgba(0,0,0,.28)",
+     "ochre": "0 24px 46px -16px rgba(132,110,62,.42), 0 5px 12px -2px rgba(120,96,44,.14), inset 3px 3px 6px 0 rgba(255,252,240,.55), inset -3px -5px 12px 0 rgba(120,96,44,.14)",
+     "ochre-dark": "0 24px 46px -16px rgba(6,5,2,.62), 0 5px 12px -2px rgba(0,0,0,.28), inset 3px 3px 6px 0 rgba(255,240,200,.06), inset -3px -5px 12px 0 rgba(0,0,0,.28)"
+    },
+    "usage": "Floating, high: sheets, menus, a floating nav bar, cover and illustration pieces."
+   },
+   {
+    "name": "dip-sm",
+    "value": {
+     "light": "0 0 0 0 rgba(86,106,138,.42), 0 0 0 0 rgba(255,255,255,.92), inset 3px 3px 7px 0 rgba(86,106,138,.42), inset -3px -3px 7px 0 rgba(255,255,255,.92)",
+     "dark": "0 0 0 0 rgba(5,8,12,.62), 0 0 0 0 rgba(120,150,190,.10), inset 3px 3px 7px 0 rgba(5,8,12,.62), inset -3px -3px 7px 0 rgba(120,150,190,.10)",
+     "terracotta": "0 0 0 0 rgba(140,90,62,.42), 0 0 0 0 rgba(255,248,240,.9), inset 3px 3px 7px 0 rgba(140,90,62,.42), inset -3px -3px 7px 0 rgba(255,248,240,.9)",
+     "terracotta-dark": "0 0 0 0 rgba(8,4,2,.62), 0 0 0 0 rgba(210,150,115,.09), inset 3px 3px 7px 0 rgba(8,4,2,.62), inset -3px -3px 7px 0 rgba(210,150,115,.09)",
+     "sage": "0 0 0 0 rgba(88,110,86,.42), 0 0 0 0 rgba(255,255,250,.9), inset 3px 3px 7px 0 rgba(88,110,86,.42), inset -3px -3px 7px 0 rgba(255,255,250,.9)",
+     "sage-dark": "0 0 0 0 rgba(3,6,4,.62), 0 0 0 0 rgba(140,180,140,.09), inset 3px 3px 7px 0 rgba(3,6,4,.62), inset -3px -3px 7px 0 rgba(140,180,140,.09)",
+     "ochre": "0 0 0 0 rgba(132,110,62,.42), 0 0 0 0 rgba(255,252,240,.9), inset 3px 3px 7px 0 rgba(132,110,62,.42), inset -3px -3px 7px 0 rgba(255,252,240,.9)",
+     "ochre-dark": "0 0 0 0 rgba(6,5,2,.62), 0 0 0 0 rgba(200,175,120,.09), inset 3px 3px 7px 0 rgba(6,5,2,.62), inset -3px -3px 7px 0 rgba(200,175,120,.09)"
+    },
+    "usage": "Shallow dip: inputs, tracks, badges, tab bars, pressed buttons, selected chips."
+   },
+   {
+    "name": "dip",
+    "value": {
+     "light": "0 0 0 0 rgba(86,106,138,.42), 0 0 0 0 rgba(255,255,255,.92), inset 6px 6px 12px 0 rgba(86,106,138,.42), inset -6px -6px 12px 0 rgba(255,255,255,.92)",
+     "dark": "0 0 0 0 rgba(5,8,12,.62), 0 0 0 0 rgba(120,150,190,.10), inset 6px 6px 12px 0 rgba(5,8,12,.62), inset -6px -6px 12px 0 rgba(120,150,190,.10)",
+     "terracotta": "0 0 0 0 rgba(140,90,62,.42), 0 0 0 0 rgba(255,248,240,.9), inset 6px 6px 12px 0 rgba(140,90,62,.42), inset -6px -6px 12px 0 rgba(255,248,240,.9)",
+     "terracotta-dark": "0 0 0 0 rgba(8,4,2,.62), 0 0 0 0 rgba(210,150,115,.09), inset 6px 6px 12px 0 rgba(8,4,2,.62), inset -6px -6px 12px 0 rgba(210,150,115,.09)",
+     "sage": "0 0 0 0 rgba(88,110,86,.42), 0 0 0 0 rgba(255,255,250,.9), inset 6px 6px 12px 0 rgba(88,110,86,.42), inset -6px -6px 12px 0 rgba(255,255,250,.9)",
+     "sage-dark": "0 0 0 0 rgba(3,6,4,.62), 0 0 0 0 rgba(140,180,140,.09), inset 6px 6px 12px 0 rgba(3,6,4,.62), inset -6px -6px 12px 0 rgba(140,180,140,.09)",
+     "ochre": "0 0 0 0 rgba(132,110,62,.42), 0 0 0 0 rgba(255,252,240,.9), inset 6px 6px 12px 0 rgba(132,110,62,.42), inset -6px -6px 12px 0 rgba(255,252,240,.9)",
+     "ochre-dark": "0 0 0 0 rgba(6,5,2,.62), 0 0 0 0 rgba(200,175,120,.09), inset 6px 6px 12px 0 rgba(6,5,2,.62), inset -6px -6px 12px 0 rgba(200,175,120,.09)"
+    },
+    "usage": "Deep dip: focused inputs, score rings, large wells."
+   }
+  ]
+ },
+ "duration": {
+  "tokens": [
+   {
+    "name": "duration-fast",
+    "value": "140ms",
+    "usage": "Pressing down."
+   },
+   {
+    "name": "duration-base",
+    "value": "260ms",
+    "usage": "Hover, release, colour changes."
+   },
+   {
+    "name": "duration-slow",
+    "value": "520ms",
+    "usage": "Entrances, toggle knob travel."
+   },
+   {
+    "name": "duration-drift",
+    "value": "7s",
+    "usage": "Idle drift loop for illustration pieces only."
+   }
+  ]
+ },
+ "easing": {
+  "tokens": [
+   {
+    "name": "ease-clay",
+    "value": "cubic-bezier(.34, 1.56, .64, 1)",
+    "usage": "Springing back after a press; knob travel. Soft overshoot."
+   },
+   {
+    "name": "ease-settle",
+    "value": "cubic-bezier(.22, 1, .36, 1)",
+    "usage": "Shadow changes and entrances."
+   },
+   {
+    "name": "ease-sink",
+    "value": "cubic-bezier(.45, 0, .55, 1)",
+    "usage": "Rise and dip loops."
+   }
+  ]
+ }
+}
