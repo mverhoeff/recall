@@ -28,6 +28,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.recall.ui.kiln.KilnIcon
+import com.recall.ui.kiln.KilnIcons
+import com.recall.ui.kiln.KilnText
 import com.recall.ui.theme.ClayBody
 import com.recall.ui.theme.Depth
 import com.recall.ui.theme.Kiln
@@ -58,6 +61,7 @@ fun KilnGallery() {
             PaletteSwitcher(body, dark, onBody = { body = it }, onDark = { darkOverride = !dark })
             DepthGrid()
             NestedDemo()
+            IconGrid()
             TypeSamples()
         }
     }
@@ -133,6 +137,25 @@ private fun NestedDemo() {
                 Box(Modifier.size(120.dp, 72.dp).kilnDepth(dip, RoundedCornerShape(18.dp), colors.line, colors))
             }
             BasicText("Mold1 → $mold, DipSm → $dip", style = Kiln.type.caption.copy(color = colors.ink2))
+        }
+    }
+}
+
+@Composable
+private fun IconGrid() {
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Label("Icons")
+        for (row in KilnIcons.all.chunked(5)) {
+            Row(Modifier.fillMaxWidth()) {
+                for ((name, icon) in row) {
+                    Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+                        KilnIcon(icon, contentDescription = name)
+                        Spacer(Modifier.height(6.dp))
+                        KilnText(name, style = Kiln.type.caption, color = Kiln.colors.ink2, maxLines = 1)
+                    }
+                }
+                repeat(5 - row.size) { Spacer(Modifier.weight(1f)) }
+            }
         }
     }
 }
