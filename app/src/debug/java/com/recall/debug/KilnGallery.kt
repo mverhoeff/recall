@@ -28,15 +28,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.recall.ui.kiln.BadgeTone
 import com.recall.ui.kiln.ButtonSize
 import com.recall.ui.kiln.ButtonVariant
+import com.recall.ui.kiln.KilnBadge
 import com.recall.ui.kiln.KilnButton
+import com.recall.ui.kiln.KilnChip
 import com.recall.ui.kiln.KilnIcon
 import com.recall.ui.kiln.KilnIconButton
 import com.recall.ui.kiln.KilnIcons
+import com.recall.ui.kiln.KilnProgress
 import com.recall.ui.kiln.KilnSurface
 import com.recall.ui.kiln.KilnText
+import com.recall.ui.kiln.KilnTile
 import com.recall.ui.kiln.SurfaceTone
+import com.recall.ui.kiln.TileSize
+import com.recall.ui.kiln.TileTone
 import com.recall.ui.theme.ClayBody
 import com.recall.ui.theme.Depth
 import com.recall.ui.theme.Kiln
@@ -65,6 +72,8 @@ fun KilnGallery() {
             verticalArrangement = Arrangement.spacedBy(28.dp),
         ) {
             PaletteSwitcher(body, dark, onBody = { body = it }, onDark = { darkOverride = !dark })
+            ChipsAndBadges()
+            TilesAndProgress()
             DepthGrid()
             NestedDemo()
             ButtonDemo()
@@ -72,6 +81,71 @@ fun KilnGallery() {
             IconGrid()
             TypeSamples()
         }
+    }
+}
+
+/** Shows [content] on the ground and again inside a Mold2 panel, to compare both contexts. */
+@Composable
+private fun BothContexts(title: String, content: @Composable () -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Label(title)
+        content()
+        KilnSurface(Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                content()
+            }
+        }
+    }
+}
+
+@Composable
+private fun ChipsAndBadges() {
+    BothContexts("Chips") {
+        var selected by rememberSaveable { mutableStateOf(1) }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            listOf("5", "History", "Geography").forEachIndexed { i, text ->
+                KilnChip(text, selected = i == selected, onClick = { selected = i })
+            }
+        }
+    }
+    BothContexts("Badges") {
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            KilnBadge("New")
+            KilnBadge("Learned", tone = BadgeTone.Ok)
+            KilnBadge("Due", tone = BadgeTone.Warn)
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            KilnBadge("Missed", tone = BadgeTone.Err)
+            KilnBadge("3", tone = BadgeTone.Accent)
+        }
+    }
+}
+
+@Composable
+private fun TilesAndProgress() {
+    BothContexts("Tiles") {
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            KilnTile(size = TileSize.Sm, icon = KilnIcons.folder)
+            KilnTile(tone = TileTone.Soft, initials = "Ge")
+            KilnTile(tone = TileTone.Accent, size = TileSize.Lg, icon = KilnIcons.star)
+            KilnTile(tone = TileTone.Dip, icon = KilnIcons.library)
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            KilnTile(tone = TileTone.Ok, icon = KilnIcons.checkStrong)
+            KilnTile(tone = TileTone.Err, icon = KilnIcons.closeStrong)
+            KilnTile(tone = TileTone.Pop, initials = "Hi")
+        }
+    }
+    BothContexts("Progress") {
+        var fraction by rememberSaveable { mutableStateOf(0.35f) }
+        KilnProgress(0f)
+        KilnProgress(fraction)
+        KilnButton(
+            "Change progress",
+            { fraction = if (fraction < 0.5f) 0.85f else 0.35f },
+            variant = ButtonVariant.Secondary,
+            size = ButtonSize.Sm,
+        )
     }
 }
 
