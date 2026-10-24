@@ -1,8 +1,8 @@
 package com.recall.ui.kiln
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animate
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -26,27 +25,27 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.recall.ui.theme.ClayEasing
 import com.recall.ui.theme.Depth
 import com.recall.ui.theme.Kiln
 import com.recall.ui.theme.LocalOnGround
 import com.recall.ui.theme.kilnDepth
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 private val SheetShape = RoundedCornerShape(topStart = 38.dp, topEnd = 38.dp)
 
 /**
- * A bottom sheet drawn in place. Put it last in a Box, aligned to the bottom. It closes with Back,
- * or when dragged down past a third of its height or flung downwards.
+ * A bottom sheet. Put it last in a Box, aligned to the bottom. It slides up from the bottom edge and
+ * closes with Back, or when dragged down past a third of its height or flung downwards.
  */
 @Composable
 fun KilnSheet(
@@ -59,22 +58,40 @@ fun KilnSheet(
     val colors = Kiln.colors
     val motion = Kiln.motion
     var risen by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) { risen = true }
-    val alpha by animateFloatAsState(if (risen) 1f else 0f, motion.slow(), label = "sheet")
+    // How far the sheet is out of the bottom edge, as a share of its own height.
+    val shown = remember { Animatable(0f) }
+    LaunchedEffect(Unit) {
+        risen = true
+        shown.animateTo(1f, motion.slow())
+    }
 
     var dragged by remember { mutableFloatStateOf(0f) }
     var height by remember { mutableIntStateOf(0) }
+    var closing by remember { mutableStateOf(false) }
     val flingSpeed = with(LocalDensity.current) { 1000.dp.toPx() }
     val dragState = rememberDraggableState { delta -> dragged = (dragged + delta).coerceAtLeast(0f) }
+    val scope = rememberCoroutineScope()
 
-    BackHandler(onBack = onDismiss)
+    suspend fun close(velocity: Float) {
+        if (closing) return
+        closing = true
+        animate(dragged, height.toFloat(), velocity, motion.base()) { value, _ -> dragged = value }
+        onDismiss()
+    }
+
+    BackHandler { scope.launch { close(0f) } }
 
     Column(
         modifier
             .fillMaxWidth()
-            .onSizeChanged { height = it.height }
-            .offset { IntOffset(0, dragged.roundToInt()) }
-            .alpha(alpha)
+            // Placed from its own measured height, so even the first frame starts below the edge.
+            .layout { measurable, constraints ->
+                val placeable = measurable.measure(constraints)
+                height = placeable.height
+                layout(placeable.width, placeable.height) {
+                    placeable.place(0, (dragged + (1f - shown.value) * placeable.height).roundToInt())
+                }
+            }
             .kilnDepth(
                 if (risen) Depth.Float3 else Depth.Flat,
                 SheetShape,
@@ -89,8 +106,7 @@ fun KilnSheet(
                 Orientation.Vertical,
                 onDragStopped = { velocity ->
                     if (dragged > height / 3f || velocity > flingSpeed) {
-                        animate(dragged, height.toFloat(), velocity, motion.base()) { value, _ -> dragged = value }
-                        onDismiss()
+                        close(velocity)
                     } else {
                         animate(dragged, 0f, velocity, motion.base(ClayEasing)) { value, _ -> dragged = value }
                     }
