@@ -38,9 +38,12 @@ import com.recall.ui.kiln.KilnIcon
 import com.recall.ui.kiln.KilnIconButton
 import com.recall.ui.kiln.KilnIcons
 import com.recall.ui.kiln.KilnProgress
+import com.recall.ui.kiln.KilnRadio
 import com.recall.ui.kiln.KilnSurface
+import com.recall.ui.kiln.KilnTabs
 import com.recall.ui.kiln.KilnText
 import com.recall.ui.kiln.KilnTile
+import com.recall.ui.kiln.KilnToggle
 import com.recall.ui.kiln.SurfaceTone
 import com.recall.ui.kiln.TileSize
 import com.recall.ui.kiln.TileTone
@@ -74,6 +77,7 @@ fun KilnGallery() {
             PaletteSwitcher(body, dark, onBody = { body = it }, onDark = { darkOverride = !dark })
             ChipsAndBadges()
             TilesAndProgress()
+            Controls()
             DepthGrid()
             NestedDemo()
             ButtonDemo()
@@ -146,6 +150,26 @@ private fun TilesAndProgress() {
             variant = ButtonVariant.Secondary,
             size = ButtonSize.Sm,
         )
+    }
+}
+
+@Composable
+private fun Controls() {
+    BothContexts("Tabs") {
+        var tab by rememberSaveable { mutableStateOf(0) }
+        KilnTabs(listOf("System", "Light", "Dark"), tab, onSelect = { tab = it })
+    }
+    BothContexts("Toggles") {
+        var on by rememberSaveable { mutableStateOf(true) }
+        var off by rememberSaveable { mutableStateOf(false) }
+        KilnToggle(on, { on = it }, "Daily reminder", sublabel = "19:00, only when cards are due")
+        KilnToggle(off, { off = it }, "Haptic feedback")
+    }
+    BothContexts("Radios") {
+        var choice by rememberSaveable { mutableStateOf(0) }
+        Row {
+            repeat(3) { i -> KilnRadio(selected = i == choice, onClick = { choice = i }) }
+        }
     }
 }
 
