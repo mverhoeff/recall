@@ -96,7 +96,7 @@ fun KilnGallery() {
                 IconGrid()
                 TypeSamples()
             }
-            KilnSheet(sheet, Modifier.align(Alignment.BottomCenter)) {
+            KilnSheet(sheet, onDismiss = { sheet = false }, Modifier.align(Alignment.BottomCenter)) {
                 KilnText("Reminder time", style = Kiln.type.h3)
                 KilnTabs(listOf("00", "15", "30", "45"), 0, onSelect = {})
                 KilnButton("Done", { sheet = false }, Modifier.fillMaxWidth())
