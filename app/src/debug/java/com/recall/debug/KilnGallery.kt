@@ -30,7 +30,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.recall.ui.kiln.KilnIcon
 import com.recall.ui.kiln.KilnIcons
+import com.recall.ui.kiln.KilnSurface
 import com.recall.ui.kiln.KilnText
+import com.recall.ui.kiln.SurfaceTone
 import com.recall.ui.theme.ClayBody
 import com.recall.ui.theme.Depth
 import com.recall.ui.theme.Kiln
@@ -61,6 +63,7 @@ fun KilnGallery() {
             PaletteSwitcher(body, dark, onBody = { body = it }, onDark = { darkOverride = !dark })
             DepthGrid()
             NestedDemo()
+            SurfaceDemo()
             IconGrid()
             TypeSamples()
         }
@@ -137,6 +140,30 @@ private fun NestedDemo() {
                 Box(Modifier.size(120.dp, 72.dp).kilnDepth(dip, RoundedCornerShape(18.dp), colors.line, colors))
             }
             BasicText("Mold1 → $mold, DipSm → $dip", style = Kiln.type.caption.copy(color = colors.ink2))
+        }
+    }
+}
+
+@Composable
+private fun SurfaceDemo() {
+    var taps by rememberSaveable { mutableStateOf(0) }
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Label("Surfaces")
+        KilnSurface(Modifier.fillMaxWidth(), depth = Depth.Mold1, onClick = { taps++ }) {
+            KilnText("Clickable Mold1 surface, tapped $taps times", Modifier.padding(24.dp))
+        }
+        KilnSurface(Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                KilnText("Mold2 card with nested surfaces", style = Kiln.type.bodyStrong)
+                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    KilnSurface(Modifier.size(96.dp, 64.dp), depth = Depth.Mold1, shape = RoundedCornerShape(18.dp)) {}
+                    KilnSurface(Modifier.size(96.dp, 64.dp), depth = Depth.DipSm, shape = RoundedCornerShape(18.dp)) {}
+                    KilnSurface(Modifier.size(96.dp, 64.dp), depth = Depth.Float1, tone = SurfaceTone.Accent, shape = RoundedCornerShape(18.dp)) {
+                        KilnText("Accent", Modifier.align(Alignment.Center), style = Kiln.type.caption)
+                    }
+                }
+                KilnText("Mold1 floats, DipSm goes flat", style = Kiln.type.caption, color = Kiln.colors.ink2)
+            }
         }
     }
 }
