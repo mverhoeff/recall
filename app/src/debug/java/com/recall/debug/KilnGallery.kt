@@ -28,7 +28,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.recall.ui.kiln.ButtonSize
+import com.recall.ui.kiln.ButtonVariant
+import com.recall.ui.kiln.KilnButton
 import com.recall.ui.kiln.KilnIcon
+import com.recall.ui.kiln.KilnIconButton
 import com.recall.ui.kiln.KilnIcons
 import com.recall.ui.kiln.KilnSurface
 import com.recall.ui.kiln.KilnText
@@ -63,6 +67,7 @@ fun KilnGallery() {
             PaletteSwitcher(body, dark, onBody = { body = it }, onDark = { darkOverride = !dark })
             DepthGrid()
             NestedDemo()
+            ButtonDemo()
             SurfaceDemo()
             IconGrid()
             TypeSamples()
@@ -165,6 +170,47 @@ private fun SurfaceDemo() {
                 KilnText("Mold1 floats, DipSm goes flat", style = Kiln.type.caption, color = Kiln.colors.ink2)
             }
         }
+    }
+}
+
+@Composable
+private fun ButtonDemo() {
+    Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
+        Label("Buttons")
+        for (variant in ButtonVariant.entries) {
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                for (size in ButtonSize.entries) {
+                    val label = if (size == ButtonSize.Sm) variant.name else size.name
+                    KilnButton(label, {}, variant = variant, size = size)
+                }
+            }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            KilnButton("Disabled", {}, enabled = false)
+            KilnButton("Disabled", {}, variant = ButtonVariant.Secondary, enabled = false)
+        }
+        Label("Pressed on the ground")
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            KilnButton("Primary", {}, pressed = true)
+            KilnButton("Secondary", {}, variant = ButtonVariant.Secondary, pressed = true)
+            KilnButton("Ghost", {}, variant = ButtonVariant.Ghost, pressed = true)
+        }
+        Label("Pressed inside a card")
+        KilnSurface(Modifier.fillMaxWidth()) {
+            Row(Modifier.padding(24.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                KilnButton("Rest", {}, variant = ButtonVariant.Secondary)
+                KilnButton("Pressed", {}, variant = ButtonVariant.Secondary, pressed = true)
+            }
+        }
+        Label("Icon buttons")
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            KilnIconButton(KilnIcons.plus, "Add", {})
+            KilnIconButton(KilnIcons.check, "Confirm", {}, variant = ButtonVariant.Primary)
+            KilnIconButton(KilnIcons.trash, "Delete", {}, variant = ButtonVariant.Ghost)
+            KilnIconButton(KilnIcons.more, "More", {}, size = ButtonSize.Lg)
+            KilnIconButton(KilnIcons.edit, "Edit", {}, pressed = true)
+        }
+        KilnButton("Start review", {}, size = ButtonSize.Lg, trailingIcon = KilnIcons.forward)
     }
 }
 
