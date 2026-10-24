@@ -27,21 +27,28 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.recall.ui.kiln.BadgeTone
+import com.recall.ui.kiln.BlobShape
+import com.recall.ui.kiln.BlobTone
 import com.recall.ui.kiln.ButtonSize
 import com.recall.ui.kiln.ButtonVariant
 import com.recall.ui.kiln.KilnBadge
+import com.recall.ui.kiln.KilnBlob
 import com.recall.ui.kiln.KilnButton
 import com.recall.ui.kiln.KilnChip
+import com.recall.ui.kiln.KilnDialog
 import com.recall.ui.kiln.KilnIcon
 import com.recall.ui.kiln.KilnIconButton
 import com.recall.ui.kiln.KilnIcons
 import com.recall.ui.kiln.KilnProgress
 import com.recall.ui.kiln.KilnRadio
+import com.recall.ui.kiln.KilnSheet
 import com.recall.ui.kiln.KilnSurface
 import com.recall.ui.kiln.KilnTabs
 import com.recall.ui.kiln.KilnText
+import com.recall.ui.kiln.KilnTextField
 import com.recall.ui.kiln.KilnTile
 import com.recall.ui.kiln.KilnToggle
 import com.recall.ui.kiln.SurfaceTone
@@ -63,27 +70,48 @@ fun KilnGallery() {
     var body by rememberSaveable { mutableStateOf(ClayBody.SLATE) }
     var darkOverride by rememberSaveable { mutableStateOf<Boolean?>(null) }
     val dark = darkOverride ?: isSystemInDarkTheme()
+    var sheet by rememberSaveable { mutableStateOf(false) }
+    var dialog by rememberSaveable { mutableStateOf(false) }
 
     KilnTheme(body, dark, TypePairing.B, reducedMotion = false) {
-        Column(
-            Modifier
-                .fillMaxSize()
-                .kilnGround(Kiln.colors)
-                .verticalScroll(rememberScrollState())
-                .systemBarsPadding()
-                .padding(horizontal = 20.dp, vertical = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(28.dp),
-        ) {
-            PaletteSwitcher(body, dark, onBody = { body = it }, onDark = { darkOverride = !dark })
-            ChipsAndBadges()
-            TilesAndProgress()
-            Controls()
-            DepthGrid()
-            NestedDemo()
-            ButtonDemo()
-            SurfaceDemo()
-            IconGrid()
-            TypeSamples()
+        Box(Modifier.fillMaxSize().kilnGround(Kiln.colors)) {
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .systemBarsPadding()
+                    .padding(horizontal = 20.dp, vertical = 24.dp),
+                verticalArrangement = Arrangement.spacedBy(28.dp),
+            ) {
+                PaletteSwitcher(body, dark, onBody = { body = it }, onDark = { darkOverride = !dark })
+                ChipsAndBadges()
+                TilesAndProgress()
+                Controls()
+                Fields()
+                Overlays(onSheet = { sheet = true }, onDialog = { dialog = true })
+                DepthGrid()
+                NestedDemo()
+                ButtonDemo()
+                SurfaceDemo()
+                IconGrid()
+                TypeSamples()
+            }
+            KilnSheet(sheet, Modifier.align(Alignment.BottomCenter)) {
+                KilnText("Reminder time", style = Kiln.type.h3)
+                KilnTabs(listOf("00", "15", "30", "45"), 0, onSelect = {})
+                KilnButton("Done", { sheet = false }, Modifier.fillMaxWidth())
+            }
+        }
+        if (dialog) {
+            KilnDialog(
+                title = "Delete everything?",
+                body = "All decks, cards, progress and settings on this phone will be removed. This can't be undone.",
+                confirmText = "Delete",
+                onConfirm = { dialog = false },
+                dismissText = "Cancel",
+                onDismiss = { dialog = false },
+                destructive = true,
+            )
         }
     }
 }
@@ -169,6 +197,35 @@ private fun Controls() {
         var choice by rememberSaveable { mutableStateOf(0) }
         Row {
             repeat(3) { i -> KilnRadio(selected = i == choice, onClick = { choice = i }) }
+        }
+    }
+}
+
+@Composable
+private fun Fields() {
+    BothContexts("Text fields") {
+        var name by rememberSaveable { mutableStateOf("") }
+        var answer by rememberSaveable { mutableStateOf("Jupiter") }
+        KilnTextField(name, { name = it }, "Deck name", placeholder = "World capitals", hint = "Shown in your library")
+        KilnTextField(answer, { answer = it }, "Answer", error = "Answers need at least two options")
+    }
+    BothContexts("Blobs") {
+        Row(horizontalArrangement = Arrangement.spacedBy(20.dp), verticalAlignment = Alignment.CenterVertically) {
+            KilnBlob(BlobShape.Pebble, BlobTone.Accent, DpSize(72.dp, 64.dp))
+            KilnBlob(BlobShape.Coil, BlobTone.Soft, DpSize(96.dp, 40.dp))
+            KilnBlob(BlobShape.Pebble, BlobTone.Pop, DpSize(48.dp, 48.dp))
+            KilnBlob(BlobShape.Coil, BlobTone.Raised, DpSize(40.dp, 56.dp))
+        }
+    }
+}
+
+@Composable
+private fun Overlays(onSheet: () -> Unit, onDialog: () -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Label("Overlays")
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            KilnButton("Show sheet", onSheet, variant = ButtonVariant.Secondary)
+            KilnButton("Show dialog", onDialog, variant = ButtonVariant.Secondary)
         }
     }
 }
