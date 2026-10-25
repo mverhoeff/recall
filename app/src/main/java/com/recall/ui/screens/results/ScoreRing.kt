@@ -16,9 +16,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.recall.R
@@ -31,6 +33,11 @@ private val RingSize = 196.dp
 private val DiscSize = 130.dp
 private val ArcWidth = 15.dp
 private val ArcInset = 10.dp
+
+// Room for the score across the middle of the disc.
+private val ScoreWidth = 108.dp
+private const val SCORE_MAX_SP = 44
+private const val SCORE_MIN_SP = 20
 
 /** A well with an accent arc around it for the share of right answers, and the score on a disc in the middle. */
 @Composable
@@ -70,12 +77,27 @@ fun ScoreRing(correct: Int, total: Int, modifier: Modifier = Modifier) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-            KilnText(
-                stringResource(R.string.results_score, correct, total),
-                style = Kiln.type.display.copy(fontSize = 44.sp, lineHeight = 46.sp),
-                color = colors.ink,
-            )
+            Score(correct, total)
             KilnText(stringResource(R.string.results_correct), style = Kiln.type.small, color = colors.ink2)
         }
     }
+}
+
+/** "4/5", shrunk until it fits across the disc, so "999/999" still does. */
+@Composable
+private fun Score(correct: Int, total: Int) {
+    val display = Kiln.type.display
+    val measurer = rememberTextMeasurer()
+    val density = LocalDensity.current
+    val text = stringResource(R.string.results_score, correct, total)
+    val style = remember(text, display, density) {
+        val sizes = (SCORE_MAX_SP downTo SCORE_MIN_SP step 2).map { size ->
+            display.copy(fontSize = size.sp, lineHeight = (size + 2).sp)
+        }
+        val room = with(density) { ScoreWidth.roundToPx() }
+        sizes.firstOrNull { candidate ->
+            measurer.measure(text, candidate, softWrap = false, maxLines = 1).size.width <= room
+        } ?: sizes.last()
+    }
+    KilnText(text, style = style, color = Kiln.colors.ink, maxLines = 1)
 }
