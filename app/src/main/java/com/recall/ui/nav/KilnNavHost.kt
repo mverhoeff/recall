@@ -8,9 +8,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
 import com.recall.R
 import com.recall.data.db.StudyMode
 import com.recall.ui.screens.PlaceholderScreen
+import com.recall.ui.screens.deck.DeckDetailScreen
 import com.recall.ui.screens.library.LibraryScreen
 import com.recall.ui.theme.Kiln
 
@@ -35,7 +37,17 @@ fun KilnNavHost(navController: NavHostController, modifier: Modifier = Modifier)
         }
         composable<Progress> { PlaceholderScreen(stringResource(R.string.nav_progress)) }
         composable<Settings> { PlaceholderScreen(stringResource(R.string.nav_settings)) }
-        composable<DeckDetail> { PlaceholderScreen("Deck") }
+        composable<DeckDetail> { entry ->
+            val deckId = entry.toRoute<DeckDetail>().deckId
+            DeckDetailScreen(
+                deckId = deckId,
+                onBack = { navController.popBackStack() },
+                onAddCard = { navController.navigate(CardEditor(deckId)) },
+                onStartStudy = { mode, size, shuffle, missedFirst ->
+                    navController.navigate(Study(mode.name, deckId, size = size, shuffle = shuffle, missedFirst = missedFirst))
+                },
+            )
+        }
         composable<CardEditor> { PlaceholderScreen("Card") }
         composable<Study> { PlaceholderScreen("Study") }
         composable<Results> { PlaceholderScreen("Results") }

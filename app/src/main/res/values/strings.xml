@@ -41,6 +41,32 @@
     <string name="new_deck_name">Deck name</string>
     <string name="new_deck_description">Description (optional)</string>
 
+    <string name="deck_add_card">Add card</string>
+    <string name="deck_label">Deck · %s</string>
+    <string name="stat_due">Due</string>
+    <string name="stat_known">Known</string>
+    <string name="stat_accuracy">Accuracy</string>
+    <string name="stat_none">–</string>
+    <string name="percent">%d%%</string>
+    <string name="deck_progress_caption">%1$d known · %2$d learning · %3$d new</string>
+    <string name="study_tab_quiz">Quiz</string>
+    <string name="study_tab_flashcards">Flashcards</string>
+    <string name="study_tab_due">Due only</string>
+    <string name="study_round_size">Questions per round</string>
+    <string name="study_size_all">All %d</string>
+    <string name="study_shuffle">Shuffle answers</string>
+    <string name="study_shuffle_sub">Order changes every time</string>
+    <string name="study_missed_first">Missed cards first</string>
+    <plurals name="study_missed_first_sub">
+        <item quantity="one">Start with the one you got wrong lately</item>
+        <item quantity="other">Start with the %d you got wrong lately</item>
+    </plurals>
+    <string name="study_start_quiz">Start quiz</string>
+    <string name="study_start_flashcards">Start flashcards</string>
+    <string name="study_review_due">Review %d due</string>
+    <string name="study_nothing_due">Nothing due in this deck</string>
+
+    <string name="action_back">Back</string>
     <string name="action_cancel">Cancel</string>
     <string name="action_create">Create</string>
 </resources>

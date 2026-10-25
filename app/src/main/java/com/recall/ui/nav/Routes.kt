@@ -19,7 +19,14 @@ data class CardEditor(val deckId: Long, val cardId: Long? = null)
 
 /** [cardIds] is comma-joined, for retrying exactly the cards missed in a round. */
 @Serializable
-data class Study(val mode: String, val deckId: Long? = null, val cardIds: String? = null)
+data class Study(
+    val mode: String,
+    val deckId: Long? = null,
+    val cardIds: String? = null,
+    val size: Int = 10,
+    val shuffle: Boolean = true,
+    val missedFirst: Boolean = false,
+)
 
 @Serializable
 data class Results(val sessionKey: String)
