@@ -118,8 +118,22 @@
     <string name="editor_delete_title">Delete this card?</string>
     <string name="editor_delete_body">The card and its progress will be removed.</string>
 
+    <string name="quiz_counter">%1$d/%2$d</string>
     <string name="quiz_check">Check answer</string>
     <string name="quiz_pick_all">Pick all that apply</string>
+    <string name="quiz_right">Right, well done</string>
+    <string name="quiz_wrong">Not quite: it\'s %s</string>
+    <string name="quiz_true_word">true</string>
+    <string name="quiz_false_word">false</string>
+    <string name="quiz_next">Next question</string>
+    <string name="quiz_see_results">See results</string>
+    <string name="quiz_skip">Skip</string>
+    <string name="quiz_end_title">End this round?</string>
+    <string name="quiz_end_body">Your answers so far are kept.</string>
+    <string name="quiz_end">End round</string>
+    <string name="quiz_keep">Keep going</string>
+    <string name="list_comma">%1$s, %2$s</string>
+    <string name="list_and">%1$s and %2$s</string>
 
     <string name="action_back">Back</string>
     <string name="action_close">Close</string>
