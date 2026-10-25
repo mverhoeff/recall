@@ -2,7 +2,10 @@ package com.recall.ui.screens.study
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.recall.data.db.Card
 import com.recall.data.db.Grade
+import com.recall.data.db.Phase
+import com.recall.data.db.ReviewState
 import com.recall.data.db.StudyMode
 import com.recall.di.AppContainer
 import com.recall.domain.session.Answer
@@ -10,6 +13,7 @@ import com.recall.domain.session.SessionFactory
 import com.recall.domain.session.SessionItem
 import com.recall.domain.session.SessionState
 import com.recall.domain.session.StudySession
+import com.recall.domain.srs.Scheduler
 import com.recall.ui.nav.Study
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,6 +21,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.Duration
 import kotlin.random.Random
 
 data class StudyUiState(
@@ -30,9 +35,18 @@ data class StudyUiState(
     val total: Int get() = session.items.size
 }
 
+/** When a card would come back after a grade: in minutes while it's being learned, in days after. */
+sealed interface Comeback {
+    data class Minutes(val minutes: Long) : Comeback
+    data class Days(val days: Int) : Comeback
+}
+
+data class GradeOption(val grade: Grade, val comeback: Comeback)
+
 class StudyViewModel(private val route: Study, private val container: AppContainer) : ViewModel() {
     private val mode = StudyMode.valueOf(route.mode)
     private var session: StudySession? = null
+    private var reviewStates: Map<Long, ReviewState> = emptyMap()
 
     private val _state = MutableStateFlow<StudyUiState?>(null)
     val state: StateFlow<StudyUiState?> = _state
@@ -47,6 +61,9 @@ class StudyViewModel(private val route: Study, private val container: AppContain
                 empty.value = true
                 return@launch
             }
+            reviewStates = items.map { it.card.deckId }.distinct()
+                .flatMap { container.database.reviewDao().statesByDeck(it) }
+                .associateBy { it.cardId }
             val names = container.database.deckDao().observeAll().first().associate { it.id to it.name }
             val started = StudySession(items, container.clock)
             session = started
@@ -70,7 +87,20 @@ class StudyViewModel(private val route: Study, private val container: AppContain
 
     fun grade(grade: Grade) = act { session -> session.grade(grade)?.let(::record) }
 
-    fun skip() = act { it.skip() }
+    /** The four grades with when each would bring [card] back, from its schedule as the round started. */
+    fun previews(card: Card): List<GradeOption> {
+        val state = reviewStates[card.id] ?: ReviewState.new(card.id)
+        val now = container.clock.instant()
+        return Grade.entries.map { grade ->
+            val next = Scheduler.schedule(state, grade, now, container.clock.zone)
+            val comeback = if (next.phase == Phase.REVIEW) {
+                Comeback.Days(next.intervalDays)
+            } else {
+                Comeback.Minutes(Duration.ofMillis(next.dueAt - now.toEpochMilli()).toMinutes())
+            }
+            GradeOption(grade, comeback)
+        }
+    }
 
     private fun act(step: (StudySession) -> Unit) {
         session?.let(step) ?: return

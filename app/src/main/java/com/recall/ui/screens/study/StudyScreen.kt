@@ -21,6 +21,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -37,7 +38,6 @@ import com.recall.data.db.CardType
 import com.recall.domain.session.Presentation
 import com.recall.domain.session.SessionItem
 import com.recall.ui.kiln.ButtonSize
-import com.recall.ui.kiln.ButtonVariant
 import com.recall.ui.kiln.KilnButton
 import com.recall.ui.kiln.KilnDialog
 import com.recall.ui.kiln.KilnIconButton
@@ -110,7 +110,15 @@ fun StudyScreen(route: Study, onClose: () -> Unit, onFinished: (String) -> Unit)
                         },
                         modifier = Modifier.fillMaxSize(),
                     )
-                    Presentation.FLASH -> FlashPlaceholder(viewModel::skip)
+                    Presentation.FLASH -> FlashItem(
+                        item = item,
+                        state = shown,
+                        deckName = current.deckNames[item.card.deckId],
+                        grades = remember(item.card.id) { viewModel.previews(item.card) },
+                        onFlip = viewModel::flip,
+                        onGrade = viewModel::grade,
+                        modifier = Modifier.fillMaxSize(),
+                    )
                 }
             }
         }
@@ -179,21 +187,12 @@ private fun rightAnswers(item: SessionItem): String {
     if (item.card.type == CardType.TF) {
         return stringResource(if (item.card.answer == "true") R.string.quiz_true_word else R.string.quiz_false_word)
     }
-    val answers = item.correct.sorted().map { item.options[it] }
-    if (answers.size == 1) return answers.single()
-    val head = answers.dropLast(1).reduce { joined, next -> stringResource(R.string.list_comma, joined, next) }
-    return stringResource(R.string.list_and, head, answers.last())
+    return joinedList(item.correct.sorted().map { item.options[it] })
 }
 
-// Flashcards get their own page later; until then a due round can step past them.
 @Composable
-private fun FlashPlaceholder(onSkip: () -> Unit) {
-    Column(
-        Modifier.fillMaxSize().padding(20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
-    ) {
-        KilnText(stringResource(R.string.card_type_flash), style = Kiln.type.h2)
-        KilnButton(stringResource(R.string.quiz_skip), onSkip, variant = ButtonVariant.Ghost)
-    }
+internal fun joinedList(items: List<String>): String {
+    if (items.size == 1) return items.single()
+    val head = items.dropLast(1).reduce { joined, next -> stringResource(R.string.list_comma, joined, next) }
+    return stringResource(R.string.list_and, head, items.last())
 }

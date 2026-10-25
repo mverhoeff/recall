@@ -127,11 +127,24 @@
     <string name="quiz_false_word">false</string>
     <string name="quiz_next">Next question</string>
     <string name="quiz_see_results">See results</string>
-    <string name="quiz_skip">Skip</string>
     <string name="quiz_end_title">End this round?</string>
     <string name="quiz_end_body">Your answers so far are kept.</string>
     <string name="quiz_end">End round</string>
     <string name="quiz_keep">Keep going</string>
+    <string name="flash_question">Question</string>
+    <string name="flash_hint">Say the answer out loud, then tap to flip</string>
+    <string name="flash_show">Show answer</string>
+    <string name="flash_how">How well did you know it?</string>
+    <string name="grade_again">Again</string>
+    <string name="grade_hard">Hard</string>
+    <string name="grade_good">Good</string>
+    <string name="grade_easy">Easy</string>
+    <string name="comeback_under_minute">&lt; 1 min</string>
+    <string name="comeback_minutes">%d min</string>
+    <plurals name="comeback_days">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
     <string name="list_comma">%1$s, %2$s</string>
     <string name="list_and">%1$s and %2$s</string>
 
