@@ -1,60 +1,42 @@
 package com.recall.ui.nav
 
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
-import com.recall.R
-import com.recall.data.db.StudyMode
 import com.recall.ui.kiln.RiseEntrance
 import com.recall.ui.screens.PlaceholderScreen
 import com.recall.ui.screens.deck.CardListScreen
 import com.recall.ui.screens.deck.DeckDetailScreen
-import com.recall.ui.screens.library.LibraryScreen
 import com.recall.ui.theme.Kiln
 
-// The new page waits until the old one has mostly faded, so the two never show through each other.
-private const val THROUGH_DELAY_MS = 90
-
-// Going deeper, pages come up towards the viewer; going back, they sink away.
-private const val NEAR_SCALE = 1.03f
-private const val FAR_SCALE = 0.96f
+// The page underneath moves a quarter of the way, so the two pages don't travel as one sheet.
+private const val UNDER_SHIFT = 4
 
 @Composable
 fun KilnNavHost(navController: NavHostController, modifier: Modifier = Modifier) {
     val motion = Kiln.motion
     NavHost(
         navController = navController,
-        startDestination = Library,
+        startDestination = Home,
         modifier = modifier,
-        enterTransition = {
-            fadeIn(motion.base(delay = THROUGH_DELAY_MS)) + scaleIn(motion.base(delay = THROUGH_DELAY_MS), FAR_SCALE)
-        },
-        exitTransition = { fadeOut(motion.fast()) + scaleOut(motion.fast(), NEAR_SCALE) },
-        popEnterTransition = {
-            fadeIn(motion.base(delay = THROUGH_DELAY_MS)) + scaleIn(motion.base(delay = THROUGH_DELAY_MS), NEAR_SCALE)
-        },
-        popExitTransition = { fadeOut(motion.fast()) + scaleOut(motion.fast(), FAR_SCALE) },
+        // Deeper pages come in from the right and leave to the right, the way the back gesture pulls them.
+        enterTransition = { slideInHorizontally(motion.base()) { it } },
+        exitTransition = { slideOutHorizontally(motion.base()) { -it / UNDER_SHIFT } },
+        popEnterTransition = { slideInHorizontally(motion.base()) { -it / UNDER_SHIFT } },
+        popExitTransition = { slideOutHorizontally(motion.base()) { it } },
     ) {
-        screen<Library> {
-            LibraryScreen(
-                onOpenDeck = { navController.navigate(DeckDetail(it)) },
-                onImport = { navController.navigate(Import()) },
-                onStartReview = { navController.navigate(Study(mode = StudyMode.DUE.name)) },
-            )
-        }
-        screen<Progress> { PlaceholderScreen(stringResource(R.string.nav_progress)) }
-        screen<Settings> { PlaceholderScreen(stringResource(R.string.nav_settings)) }
-        screen<DeckDetail> { entry ->
+        page<Home> { TabsHost(navController) }
+        page<DeckDetail> { entry ->
             val deckId = entry.toRoute<DeckDetail>().deckId
             DeckDetailScreen(
                 deckId = deckId,
@@ -68,7 +50,7 @@ fun KilnNavHost(navController: NavHostController, modifier: Modifier = Modifier)
                 },
             )
         }
-        screen<CardList> { entry ->
+        page<CardList> { entry ->
             val deckId = entry.toRoute<CardList>().deckId
             CardListScreen(
                 deckId = deckId,
@@ -76,15 +58,24 @@ fun KilnNavHost(navController: NavHostController, modifier: Modifier = Modifier)
                 onOpenCard = { navController.navigate(CardEditor(deckId, it)) },
             )
         }
-        screen<CardEditor> { PlaceholderScreen("Card") }
-        screen<Study> { PlaceholderScreen("Study") }
-        screen<Results> { PlaceholderScreen("Results") }
-        screen<Import> { PlaceholderScreen("Import") }
+        page<CardEditor> { PlaceholderScreen("Card") }
+        page<Study> { PlaceholderScreen("Study") }
+        page<Results> { PlaceholderScreen("Results") }
+        page<Import> { PlaceholderScreen("Import") }
     }
 }
 
-private inline fun <reified T : Any> NavGraphBuilder.screen(noinline content: @Composable (NavBackStackEntry) -> Unit) {
-    composable<T> { entry -> RiseEntrance { content(entry) } }
+internal inline fun <reified T : Any> NavGraphBuilder.page(noinline content: @Composable (NavBackStackEntry) -> Unit) {
+    composable<T> { entry ->
+        // Pages are opaque, so one sliding over another doesn't show it through.
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(Kiln.colors.bg),
+        ) {
+            RiseEntrance { content(entry) }
+        }
+    }
 }
 
 // A second tap on Back while the page is already leaving would otherwise pop the page beneath it too.

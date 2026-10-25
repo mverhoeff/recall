@@ -2,6 +2,10 @@ package com.recall.ui.nav
 
 import kotlinx.serialization.Serializable
 
+/** The three tabs with their bar; [Library], [Progress] and [Settings] live inside it. */
+@Serializable
+data object Home
+
 @Serializable
 data object Library
 
