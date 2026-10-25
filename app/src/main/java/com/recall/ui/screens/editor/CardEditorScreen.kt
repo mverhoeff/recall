@@ -1,5 +1,6 @@
 package com.recall.ui.screens.editor
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -38,6 +42,7 @@ import com.recall.data.db.CardType
 import com.recall.ui.kiln.ButtonSize
 import com.recall.ui.kiln.ButtonVariant
 import com.recall.ui.kiln.KilnButton
+import com.recall.ui.kiln.KilnDialog
 import com.recall.ui.kiln.KilnIconButton
 import com.recall.ui.kiln.KilnIcons
 import com.recall.ui.kiln.KilnRadio
@@ -61,6 +66,10 @@ fun CardEditorScreen(deckId: Long, cardId: Long?, onClose: () -> Unit) {
     val arrival = Modifier.arrival(state != null)
     val current = state ?: return
     val draft = current.draft
+    var discarding by rememberSaveable { mutableStateOf(false) }
+    var deleting by rememberSaveable { mutableStateOf(false) }
+    val close: () -> Unit = { if (current.edited) discarding = true else onClose() }
+    BackHandler(enabled = current.edited, onBack = { discarding = true })
     val scroll = rememberScrollState()
     val motion = Kiln.motion
     // A fresh card starts at the top again, where its type is picked.
@@ -80,7 +89,7 @@ fun CardEditorScreen(deckId: Long, cardId: Long?, onClose: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(14.dp),
         ) {
-            KilnIconButton(KilnIcons.close, stringResource(R.string.action_close), onClose)
+            KilnIconButton(KilnIcons.close, stringResource(R.string.action_close), close)
             Column(Modifier.weight(1f)) {
                 KilnText(
                     stringResource(if (current.original == null) R.string.editor_new else R.string.editor_edit),
@@ -93,6 +102,9 @@ fun CardEditorScreen(deckId: Long, cardId: Long?, onClose: () -> Unit) {
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
+            }
+            if (current.original != null) {
+                KilnIconButton(KilnIcons.trash, stringResource(R.string.editor_delete), { deleting = true })
             }
         }
 
@@ -180,6 +192,34 @@ fun CardEditorScreen(deckId: Long, cardId: Long?, onClose: () -> Unit) {
                 textAlign = TextAlign.Center,
             )
         }
+    }
+
+    if (discarding) {
+        KilnDialog(
+            title = stringResource(R.string.editor_discard_title),
+            body = stringResource(R.string.editor_discard_body),
+            confirmText = stringResource(R.string.editor_discard),
+            onConfirm = {
+                discarding = false
+                onClose()
+            },
+            dismissText = stringResource(R.string.editor_keep),
+            onDismiss = { discarding = false },
+        )
+    }
+    if (deleting) {
+        KilnDialog(
+            title = stringResource(R.string.editor_delete_title),
+            body = stringResource(R.string.editor_delete_body),
+            confirmText = stringResource(R.string.action_delete),
+            onConfirm = {
+                deleting = false
+                viewModel.delete(onClose)
+            },
+            dismissText = stringResource(R.string.action_cancel),
+            onDismiss = { deleting = false },
+            destructive = true,
+        )
     }
 }
 

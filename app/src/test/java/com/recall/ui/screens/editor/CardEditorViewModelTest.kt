@@ -31,6 +31,9 @@ class CardEditorViewModelTest {
         override suspend fun update(card: Card) {
             updated += card
         }
+        override suspend fun delete(cardId: Long) {
+            cards.remove(cardId)
+        }
     }
 
     private val existing = Card(
@@ -151,5 +154,6 @@ class CardEditorViewModelTest {
         assertEquals(CardType.TF, state.draft.type)
         assertEquals("", state.draft.prompt)
         assertTrue(state.saved)
+        assertFalse(state.edited)
     }
 }

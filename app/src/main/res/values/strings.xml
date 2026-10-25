@@ -89,6 +89,7 @@
 
     <string name="editor_new">New card</string>
     <string name="editor_edit">Edit card</string>
+    <string name="editor_delete">Delete card</string>
     <string name="editor_question">Question</string>
     <string name="editor_statement">Statement</string>
     <string name="editor_front">Front</string>
@@ -110,6 +111,12 @@
     <string name="editor_error_prompt">The prompt is empty.</string>
     <string name="editor_error_answers">A choice card needs at least 2 answers.</string>
     <string name="editor_error_back">The back of the card is empty.</string>
+    <string name="editor_discard_title">Discard your changes?</string>
+    <string name="editor_discard_body">What you typed on this card will be lost.</string>
+    <string name="editor_discard">Discard</string>
+    <string name="editor_keep">Keep editing</string>
+    <string name="editor_delete_title">Delete this card?</string>
+    <string name="editor_delete_body">The card and its progress will be removed.</string>
 
     <string name="action_back">Back</string>
     <string name="action_close">Close</string>

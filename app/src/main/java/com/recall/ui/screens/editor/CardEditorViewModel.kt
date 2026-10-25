@@ -28,6 +28,7 @@ interface CardStore {
     suspend fun card(deckId: Long, cardId: Long): Card?
     suspend fun add(card: Card): Long
     suspend fun update(card: Card)
+    suspend fun delete(cardId: Long)
 }
 
 class DeckCardStore(private val repository: DeckRepository) : CardStore {
@@ -42,6 +43,8 @@ class DeckCardStore(private val repository: DeckRepository) : CardStore {
     override suspend fun add(card: Card): Long = repository.addCard(card)
 
     override suspend fun update(card: Card) = repository.updateCard(card)
+
+    override suspend fun delete(cardId: Long) = repository.deleteCard(cardId)
 }
 
 /** Every type's fields live side by side, so switching type and back loses nothing. */
@@ -75,7 +78,10 @@ data class CardEditorUiState(
     /** Only set once a save has been tried, and cleared as soon as the draft is fixed. */
     val problem: DraftProblem? = null,
     val saved: Boolean = false,
-)
+) {
+    val edited: Boolean
+        get() = draft != (original?.let(::draftOf) ?: CardDraft(draft.type))
+}
 
 class CardEditorViewModel(
     private val deckId: Long,
@@ -180,6 +186,14 @@ class CardEditorViewModel(
         savedJob = viewModelScope.launch {
             delay(SAVED_SHOWN_MS)
             _state.update { it?.copy(saved = false) }
+        }
+    }
+
+    fun delete(onDeleted: () -> Unit) {
+        val original = _state.value?.original ?: return
+        viewModelScope.launch {
+            store.delete(original.id)
+            onDeleted()
         }
     }
 
