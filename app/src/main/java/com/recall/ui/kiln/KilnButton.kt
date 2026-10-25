@@ -49,13 +49,14 @@ fun KilnButton(
     pressed: Boolean = false,
     leadingIcon: ImageVector? = null,
     trailingIcon: ImageVector? = null,
+    restDepth: Depth? = null,
 ) {
     val style = when (size) {
         ButtonSize.Sm -> Kiln.type.buttonSm
         ButtonSize.Md -> Kiln.type.button
         ButtonSize.Lg -> Kiln.type.buttonLg
     }
-    ButtonFrame(onClick, modifier, variant, size, enabled, pressed, size.padding) {
+    ButtonFrame(onClick, modifier, variant, size, enabled, pressed, size.padding, restDepth) {
         if (leadingIcon != null) KilnIcon(leadingIcon, contentDescription = null, size = 22.dp)
         KilnText(text, style = style, maxLines = 1)
         if (trailingIcon != null) KilnIcon(trailingIcon, contentDescription = null, size = 22.dp)
@@ -91,11 +92,12 @@ private fun ButtonFrame(
     enabled: Boolean,
     pressed: Boolean,
     horizontalPadding: Dp,
+    restDepth: Depth? = null,
     content: @Composable RowScope.() -> Unit,
 ) {
     val colors = Kiln.colors
     val interactionSource = remember { MutableInteractionSource() }
-    val rest = if (variant == ButtonVariant.Ghost) Depth.Flat else Depth.Float1
+    val rest = restDepth ?: if (variant == ButtonVariant.Ghost) Depth.Flat else Depth.Float1
     val press = rememberPressState(rest, interactionSource, forcePressed = pressed)
     val requested = if (enabled) press.depth else Depth.Flat
     val resolved = requested.resolve(LocalOnGround.current)

@@ -35,4 +35,12 @@
     <string name="library_badge_due">%d due</string>
     <string name="library_up_to_date">Up to date</string>
     <string name="library_new_deck">New deck</string>
+    <string name="library_empty_title">No decks yet</string>
+    <string name="library_empty_body">Make a deck or import one from a CSV file.</string>
+    <string name="library_import_file">Import a file</string>
+    <string name="new_deck_name">Deck name</string>
+    <string name="new_deck_description">Description (optional)</string>
+
+    <string name="action_cancel">Cancel</string>
+    <string name="action_create">Create</string>
 </resources>

@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -23,7 +24,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,6 +36,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -42,6 +47,7 @@ import com.recall.data.repo.DeckSummary
 import com.recall.ui.kiln.BadgeTone
 import com.recall.ui.kiln.BlobShape
 import com.recall.ui.kiln.BlobTone
+import com.recall.ui.kiln.ButtonSize
 import com.recall.ui.kiln.ButtonVariant
 import com.recall.ui.kiln.KilnBadge
 import com.recall.ui.kiln.KilnBlob
@@ -76,54 +82,110 @@ fun LibraryScreen(onOpenDeck: (Long) -> Unit, onImport: () -> Unit, onStartRevie
     val viewModel = viewModel { LibraryViewModel(container.decks, container.database.reviewDao(), container.clock) }
     val state by viewModel.state.collectAsStateWithLifecycle()
     val current = state ?: return
+    var creating by rememberSaveable { mutableStateOf(false) }
 
     BackHandler(enabled = current.query != null) { viewModel.closeSearch() }
 
     val safe = WindowInsets.safeDrawing.asPaddingValues()
     val navBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-    LazyColumn(
-        Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(
-            start = 20.dp,
-            end = 20.dp,
-            top = safe.calculateTopPadding() + 16.dp,
-            bottom = navBottom + BottomBarSpace + 96.dp,
-        ),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        item(key = "header") {
-            Header(
-                today = current.today,
-                query = current.query,
-                showSearch = current.hasDecks,
-                onOpenSearch = viewModel::openSearch,
-                onCloseSearch = viewModel::closeSearch,
-                onQueryChange = viewModel::search,
-                onImport = onImport,
-            )
-        }
-        if (current.hasDecks) {
-            if (current.query == null) {
-                item(key = "hero") { Hero(current, onStartReview, Modifier.padding(top = 12.dp)) }
+    Box(Modifier.fillMaxSize()) {
+        LazyColumn(
+            Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(
+                start = 20.dp,
+                end = 20.dp,
+                top = safe.calculateTopPadding() + 16.dp,
+                bottom = navBottom + BottomBarSpace + 96.dp,
+            ),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            item(key = "header") {
+                Header(
+                    today = current.today,
+                    query = current.query,
+                    showSearch = current.hasDecks,
+                    onOpenSearch = viewModel::openSearch,
+                    onCloseSearch = viewModel::closeSearch,
+                    onQueryChange = viewModel::search,
+                    onImport = onImport,
+                )
             }
-            item(key = "decks-title") {
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    KilnText(stringResource(R.string.library_your_decks), Modifier.weight(1f), style = Kiln.type.h3)
-                    KilnChip(
-                        text = stringResource(if (current.sort == DeckSort.DUE_FIRST) R.string.library_sort_due else R.string.library_sort_az),
-                        selected = false,
-                        onClick = viewModel::toggleSort,
-                    )
+            if (current.hasDecks) {
+                if (current.query == null) {
+                    item(key = "hero") { Hero(current, onStartReview, Modifier.padding(top = 12.dp)) }
+                }
+                item(key = "decks-title") {
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        KilnText(stringResource(R.string.library_your_decks), Modifier.weight(1f), style = Kiln.type.h3)
+                        KilnChip(
+                            text = stringResource(if (current.sort == DeckSort.DUE_FIRST) R.string.library_sort_due else R.string.library_sort_az),
+                            selected = false,
+                            onClick = viewModel::toggleSort,
+                        )
+                    }
+                }
+                itemsIndexed(current.decks, key = { _, it -> it.deck.id }) { index, summary ->
+                    DeckRow(summary, onClick = { onOpenDeck(summary.deck.id) }, Modifier.rise(index))
+                }
+            } else {
+                item(key = "empty") {
+                    EmptyLibrary(onImport = onImport, onNewDeck = { creating = true }, Modifier.fillParentMaxHeight(0.7f))
                 }
             }
-            itemsIndexed(current.decks, key = { _, it -> it.deck.id }) { index, summary ->
-                DeckRow(summary, onClick = { onOpenDeck(summary.deck.id) }, Modifier.rise(index))
-            }
+        }
+        if (current.hasDecks && current.query == null) {
+            KilnButton(
+                stringResource(R.string.library_new_deck),
+                onClick = { creating = true },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = 20.dp, bottom = navBottom + BottomBarSpace + 16.dp),
+                variant = ButtonVariant.Secondary,
+                size = ButtonSize.Lg,
+                leadingIcon = KilnIcons.plus,
+                restDepth = Depth.Float3,
+            )
+        }
+    }
+
+    if (creating) {
+        NewDeckDialog(
+            onDismiss = { creating = false },
+            onCreate = { name, description ->
+                creating = false
+                viewModel.createDeck(name, description, onOpenDeck)
+            },
+        )
+    }
+}
+
+@Composable
+private fun EmptyLibrary(onImport: () -> Unit, onNewDeck: () -> Unit, modifier: Modifier = Modifier) {
+    Column(
+        modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Box(Modifier.size(220.dp, 150.dp)) {
+            KilnBlob(BlobShape.Coil, BlobTone.Soft, DpSize(170.dp, 60.dp), Modifier.align(Alignment.BottomStart))
+            KilnBlob(BlobShape.Pebble, BlobTone.Pop, DpSize(110.dp, 100.dp), Modifier.align(Alignment.TopEnd))
+        }
+        KilnText(stringResource(R.string.library_empty_title), Modifier.padding(top = 32.dp), style = Kiln.type.h2)
+        KilnText(
+            stringResource(R.string.library_empty_body),
+            Modifier.padding(top = 8.dp),
+            style = Kiln.type.small,
+            color = Kiln.colors.ink2,
+            textAlign = TextAlign.Center,
+        )
+        Row(Modifier.padding(top = 24.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            KilnButton(stringResource(R.string.library_import_file), onImport, leadingIcon = KilnIcons.importIcon)
+            KilnButton(stringResource(R.string.library_new_deck), onNewDeck, variant = ButtonVariant.Secondary, leadingIcon = KilnIcons.plus)
         }
     }
 }
@@ -195,23 +257,25 @@ private fun Hero(state: LibraryUiState, onStartReview: () -> Unit, modifier: Mod
                 KilnText(stringResource(R.string.library_all_done), style = Kiln.type.display)
                 KilnText(stringResource(R.string.library_nothing_due), style = Kiln.type.small)
             }
-            Row(
-                Modifier.padding(top = 10.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-            ) {
-                if (state.dueTotal > 0) {
-                    KilnButton(
-                        stringResource(R.string.library_start_review),
-                        onStartReview,
-                        variant = ButtonVariant.Secondary,
-                        trailingIcon = KilnIcons.forward,
-                    )
-                }
-                if (state.streak > 0) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        KilnIcon(KilnIcons.star, contentDescription = null, size = 20.dp)
-                        KilnText(stringResource(R.string.library_streak, state.streak), style = Kiln.type.bodyStrong)
+            if (state.dueTotal > 0 || state.streak > 0) {
+                Row(
+                    Modifier.padding(top = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                ) {
+                    if (state.dueTotal > 0) {
+                        KilnButton(
+                            stringResource(R.string.library_start_review),
+                            onStartReview,
+                            variant = ButtonVariant.Secondary,
+                            trailingIcon = KilnIcons.forward,
+                        )
+                    }
+                    if (state.streak > 0) {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            KilnIcon(KilnIcons.star, contentDescription = null, size = 20.dp)
+                            KilnText(stringResource(R.string.library_streak, state.streak), style = Kiln.type.bodyStrong)
+                        }
                     }
                 }
             }
