@@ -113,14 +113,26 @@ class DeckRepository(
 
     suspend fun deleteCard(cardId: Long) = cards.delete(cardId)
 
+    /** How many of a deck's new cards today's review takes, the same number its due count includes. */
+    suspend fun newCardsDue(deckId: Long): Int {
+        val newCount = reviews.statesByDeck(deckId).count { it.phase == Phase.NEW }
+        return newDue(deckId, newCount, settings.settings.first().newPerDay)
+    }
+
+    private suspend fun newDue(deckId: Long, newCount: Int, newPerDay: Int): Int {
+        val now = clock.instant()
+        val zone = clock.zone
+        val startOfToday = now.atZone(zone).toLocalDate().atStartOfDay(zone).toInstant().toEpochMilli()
+        val startedToday = reviews.firstLogTimes(deckId).count { it.firstAt >= startOfToday }
+        return minOf(newPerDay - startedToday, newCount).coerceAtLeast(0)
+    }
+
     private suspend fun summarize(deck: Deck, newPerDay: Int): DeckSummary {
         val now = clock.instant()
         val zone = clock.zone
         val states = reviews.statesByDeck(deck.id)
-        val startOfToday = now.atZone(zone).toLocalDate().atStartOfDay(zone).toInstant().toEpochMilli()
-        val startedToday = reviews.firstLogTimes(deck.id).count { it.firstAt >= startOfToday }
         val newCount = states.count { it.phase == Phase.NEW }
-        val newDue = minOf(newPerDay - startedToday, newCount).coerceAtLeast(0)
+        val newDue = newDue(deck.id, newCount, newPerDay)
         return DeckSummary(
             deck = deck,
             cardCount = states.size,
