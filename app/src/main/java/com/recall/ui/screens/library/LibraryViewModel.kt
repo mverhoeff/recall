@@ -13,12 +13,16 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate
 import kotlin.math.ceil
 
 enum class DeckSort { DUE_FIRST, A_Z }
+
+// Past this the deck opens anyway and its content fades in when it arrives.
+private const val OPEN_WAIT_MS = 300L
 
 data class LibraryUiState(
     val today: LocalDate,
@@ -87,8 +91,25 @@ class LibraryViewModel(
         query.value = text
     }
 
+    private var opening = false
+
+    /** Opens a deck once its page has something to show, so it slides in full rather than filling up late. */
+    fun openDeck(deckId: Long, onReady: (Long) -> Unit) {
+        if (opening) return
+        opening = true
+        viewModelScope.launch {
+            withTimeoutOrNull(OPEN_WAIT_MS) { repository.prefetchDetails(deckId) }
+            opening = false
+            onReady(deckId)
+        }
+    }
+
     fun createDeck(name: String, description: String, onCreated: (Long) -> Unit) {
-        viewModelScope.launch { onCreated(repository.createDeck(name, description)) }
+        viewModelScope.launch {
+            val deckId = repository.createDeck(name, description)
+            withTimeoutOrNull(OPEN_WAIT_MS) { repository.prefetchDetails(deckId) }
+            onCreated(deckId)
+        }
     }
 
     private fun startOfToday(): Instant = LocalDate.now(clock).atStartOfDay(clock.zone).toInstant()

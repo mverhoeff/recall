@@ -4,13 +4,17 @@ import com.recall.data.db.Card
 import com.recall.data.db.Deck
 import com.recall.data.db.Phase
 import com.recall.data.db.RecallDatabase
+import com.recall.data.db.ReviewState
 import com.recall.data.settings.SettingsRepository
 import com.recall.domain.srs.Scheduler
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.time.Clock
+import java.time.Duration
+import java.util.concurrent.ConcurrentHashMap
 
 data class DeckSummary(
     val deck: Deck,
@@ -19,6 +23,15 @@ data class DeckSummary(
     val learningCount: Int,
     val newCount: Int,
     val dueCount: Int,
+)
+
+data class DeckDetails(
+    val summary: DeckSummary,
+    /** Share of the last 30 days' answers that were right, or null with no answers in that time. */
+    val accuracy: Int?,
+    /** Cards whose latest answer was wrong. */
+    val missedCount: Int,
+    val cards: List<Pair<Card, ReviewState?>>,
 )
 
 class DeckRepository(
@@ -44,6 +57,36 @@ class DeckRepository(
         settings.settings.map { it.newPerDay }.distinctUntilChanged(),
     ) { _, newPerDay -> newPerDay }
         .map { newPerDay -> decks.get(deckId)?.let { summarize(it, newPerDay) } }
+
+    // The last details read per deck, so a deck page can draw its content on its very first frame.
+    private val detailsCache = ConcurrentHashMap<Long, DeckDetails>()
+
+    fun cachedDetails(deckId: Long): DeckDetails? = detailsCache[deckId]
+
+    fun details(deckId: Long): Flow<DeckDetails?> = summary(deckId).map { summary ->
+        summary?.let { loadDetails(it) }.also { remember(deckId, it) }
+    }
+
+    /** Reads a deck's details ahead of opening it; the deck page then starts from [cachedDetails]. */
+    suspend fun prefetchDetails(deckId: Long) {
+        remember(deckId, summary(deckId).first()?.let { loadDetails(it) })
+    }
+
+    private fun remember(deckId: Long, details: DeckDetails?) {
+        if (details == null) detailsCache.remove(deckId) else detailsCache[deckId] = details
+    }
+
+    private suspend fun loadDetails(summary: DeckSummary): DeckDetails {
+        val deckId = summary.deck.id
+        val states = reviews.statesByDeck(deckId).associateBy { it.cardId }
+        val recent = reviews.logsSince(clock.instant().minus(Duration.ofDays(30)).toEpochMilli()).filter { it.deckId == deckId }
+        return DeckDetails(
+            summary = summary,
+            accuracy = if (recent.isEmpty()) null else recent.count { it.correct } * 100 / recent.size,
+            missedCount = reviews.latestLogPerCard(deckId).count { !it.correct },
+            cards = cards.byDeck(deckId).map { it to states[it.id] },
+        )
+    }
 
     fun cardsForDeck(deckId: Long): Flow<List<Card>> = cards.observeByDeck(deckId)
 

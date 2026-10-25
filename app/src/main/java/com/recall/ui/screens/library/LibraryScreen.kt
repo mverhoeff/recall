@@ -132,7 +132,7 @@ fun LibraryScreen(onOpenDeck: (Long) -> Unit, onImport: () -> Unit, onStartRevie
                     }
                 }
                 itemsIndexed(current.decks, key = { _, it -> it.deck.id }) { index, summary ->
-                    DeckRow(summary, onClick = { onOpenDeck(summary.deck.id) }, Modifier.rise(index))
+                    DeckRow(summary, onClick = { viewModel.openDeck(summary.deck.id, onOpenDeck) }, Modifier.rise(index))
                 }
             } else {
                 item(key = "empty") {
