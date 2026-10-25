@@ -38,6 +38,9 @@ fun KilnNavHost(navController: NavHostController, modifier: Modifier = Modifier)
         exitTransition = { slideOutHorizontally(motion.base()) { -it / UNDER_SHIFT } },
         popEnterTransition = { slideInHorizontally(motion.base()) { -it / UNDER_SHIFT } },
         popExitTransition = { slideOutHorizontally(motion.base()) { it } },
+        // The back gesture drags the same slide instead of Navigation's default shrink and fade.
+        predictivePopEnterTransition = { slideInHorizontally(motion.base()) { -it / UNDER_SHIFT } },
+        predictivePopExitTransition = { slideOutHorizontally(motion.base()) { it } },
     ) {
         page<Home> { TabsHost(navController) }
         page<DeckDetail> { entry ->
