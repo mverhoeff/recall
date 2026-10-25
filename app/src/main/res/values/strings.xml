@@ -165,6 +165,13 @@
         <item quantity="one">%d day</item>
         <item quantity="other">%d days</item>
     </plurals>
+    <string name="results_row">%1$d · %2$s</string>
+    <string name="results_badge_correct">Correct</string>
+    <string name="results_badge_missed">Missed</string>
+    <plurals name="results_retry">
+        <item quantity="one">Retry the one I missed</item>
+        <item quantity="other">Retry the %d I missed</item>
+    </plurals>
     <string name="results_back">Back to deck</string>
     <string name="list_comma">%1$s, %2$s</string>
     <string name="list_and">%1$s and %2$s</string>

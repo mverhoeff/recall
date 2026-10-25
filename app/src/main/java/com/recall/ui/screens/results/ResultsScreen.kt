@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -23,26 +24,34 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.recall.R
 import com.recall.RecallApp
+import com.recall.domain.session.ItemResult
 import com.recall.domain.session.SessionResult
+import com.recall.ui.kiln.BadgeTone
 import com.recall.ui.kiln.BlobShape
 import com.recall.ui.kiln.BlobTone
 import com.recall.ui.kiln.ButtonSize
+import com.recall.ui.kiln.ButtonVariant
+import com.recall.ui.kiln.KilnBadge
 import com.recall.ui.kiln.KilnBlob
 import com.recall.ui.kiln.KilnButton
 import com.recall.ui.kiln.KilnIconButton
 import com.recall.ui.kiln.KilnIcons
+import com.recall.ui.kiln.KilnSurface
 import com.recall.ui.kiln.KilnText
 import com.recall.ui.kiln.arrival
 import com.recall.ui.kiln.squish
 import com.recall.ui.screens.deck.StatTile
+import com.recall.ui.theme.Depth
 import com.recall.ui.theme.Kiln
 
+private const val PROMPT_MAX = 32
 private const val GOOD_ACCURACY = 70
 private const val FAIR_ACCURACY = 40
 
@@ -50,7 +59,7 @@ private const val FAIR_ACCURACY = 40
 private const val SQUISH_DELAY_MS = 200L
 
 @Composable
-fun ResultsScreen(sessionKey: String, onBack: () -> Unit, onMissing: () -> Unit) {
+fun ResultsScreen(sessionKey: String, onRetry: (List<Long>) -> Unit, onBack: () -> Unit, onMissing: () -> Unit) {
     val container = (LocalContext.current.applicationContext as RecallApp).container
     val viewModel = viewModel { ResultsViewModel(sessionKey, container) }
     if (viewModel.result == null) {
@@ -98,15 +107,29 @@ fun ResultsScreen(sessionKey: String, onBack: () -> Unit, onMissing: () -> Unit)
                     Modifier.weight(1f),
                 )
             }
+            AnswerList(result.results)
         }
-        KilnButton(
-            stringResource(R.string.results_back),
-            onBack,
-            Modifier
-                .padding(horizontal = 20.dp, vertical = 16.dp)
-                .fillMaxWidth(),
-            size = ButtonSize.Lg,
-        )
+        Column(
+            Modifier.padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            val missed = result.missed
+            if (missed.isNotEmpty()) {
+                KilnButton(
+                    pluralStringResource(R.plurals.results_retry, missed.size, missed.size),
+                    { onRetry(missed.map { it.id }) },
+                    Modifier.fillMaxWidth(),
+                    size = ButtonSize.Lg,
+                )
+            }
+            KilnButton(
+                stringResource(R.string.results_back),
+                onBack,
+                Modifier.fillMaxWidth(),
+                variant = if (missed.isEmpty()) ButtonVariant.Primary else ButtonVariant.Ghost,
+                size = ButtonSize.Lg,
+            )
+        }
     }
 }
 
@@ -134,6 +157,37 @@ private fun Score(result: SessionResult) {
     }
 }
 
+/** One row per card in the order played, flagged as right or missed. */
+@Composable
+private fun AnswerList(results: List<ItemResult>) {
+    KilnSurface(Modifier.fillMaxWidth(), depth = Depth.Dip, shape = RoundedCornerShape(18.dp)) {
+        Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+            results.forEachIndexed { index, item ->
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    KilnText(
+                        stringResource(R.string.results_row, index + 1, shortPrompt(item.card.prompt)),
+                        Modifier.weight(1f),
+                        style = Kiln.type.small,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    if (item.correct) {
+                        KilnBadge(stringResource(R.string.results_badge_correct), tone = BadgeTone.Ok)
+                    } else {
+                        KilnBadge(stringResource(R.string.results_badge_missed), tone = BadgeTone.Err)
+                    }
+                }
+            }
+        }
+    }
+}
+
 @Composable
 private fun title(accuracy: Int): String = stringResource(
     when {
@@ -150,6 +204,9 @@ private fun body(result: SessionResult): String {
     if (missed == 0) return stringResource(R.string.results_body_perfect)
     return pluralStringResource(R.plurals.results_body, missed, result.correct, result.total, missed)
 }
+
+private fun shortPrompt(prompt: String): String =
+    if (prompt.length <= PROMPT_MAX) prompt else prompt.take(PROMPT_MAX).trimEnd() + "…"
 
 @Composable
 private fun elapsed(millis: Long): String {

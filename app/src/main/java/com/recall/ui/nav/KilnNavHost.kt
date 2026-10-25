@@ -13,6 +13,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
+import com.recall.data.db.StudyMode
 import com.recall.ui.kiln.RiseEntrance
 import com.recall.ui.screens.PlaceholderScreen
 import com.recall.ui.screens.deck.CardListScreen
@@ -77,6 +78,12 @@ fun KilnNavHost(navController: NavHostController, modifier: Modifier = Modifier)
         page<Results> { entry ->
             ResultsScreen(
                 sessionKey = entry.toRoute<Results>().sessionKey,
+                // The retry round replaces these results, so finishing it lands on fresh ones.
+                onRetry = { ids ->
+                    navController.navigate(Study(StudyMode.QUIZ.name, cardIds = ids.joinToString(","))) {
+                        popUpTo<Results> { inclusive = true }
+                    }
+                },
                 onBack = { navController.back(entry) },
                 onMissing = { navController.popBackStack<Home>(inclusive = false) },
             )
