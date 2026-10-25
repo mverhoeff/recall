@@ -107,6 +107,9 @@
     <string name="editor_save_next">Save, add next</string>
     <string name="editor_save">Save card</string>
     <string name="editor_saved">Saved</string>
+    <string name="editor_error_prompt">The prompt is empty.</string>
+    <string name="editor_error_answers">A choice card needs at least 2 answers.</string>
+    <string name="editor_error_back">The back of the card is empty.</string>
 
     <string name="action_back">Back</string>
     <string name="action_close">Close</string>

@@ -119,17 +119,19 @@ fun CardEditorScreen(deckId: Long, cardId: Long?, onClose: () -> Unit) {
                     },
                 ),
                 hint = if (draft.type == CardType.FLASH) stringResource(R.string.editor_front_hint) else null,
+                error = if (current.problem == DraftProblem.PROMPT) stringResource(R.string.editor_error_prompt) else null,
                 singleLine = false,
                 minLines = 2,
                 keyboardOptions = Sentences,
             )
             when (draft.type) {
-                CardType.MC -> Answers(draft, viewModel)
+                CardType.MC -> Answers(draft, current.problem == DraftProblem.ANSWERS, viewModel)
                 CardType.TF -> Truth(draft.truth, viewModel::setTruth)
                 CardType.FLASH -> KilnTextField(
                     value = draft.back,
                     onValueChange = viewModel::setBack,
                     label = stringResource(R.string.editor_back),
+                    error = if (current.problem == DraftProblem.BACK) stringResource(R.string.editor_error_back) else null,
                     singleLine = false,
                     minLines = 2,
                     keyboardOptions = Sentences,
@@ -184,7 +186,7 @@ fun CardEditorScreen(deckId: Long, cardId: Long?, onClose: () -> Unit) {
 private val Sentences = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
 
 @Composable
-private fun Answers(draft: CardDraft, viewModel: CardEditorViewModel) {
+private fun Answers(draft: CardDraft, problem: Boolean, viewModel: CardEditorViewModel) {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         SectionLabel(stringResource(R.string.editor_answers))
         draft.options.forEachIndexed { index, option ->
@@ -211,6 +213,13 @@ private fun Answers(draft: CardDraft, viewModel: CardEditorViewModel) {
                     enabled = draft.options.size > MIN_OPTIONS,
                 )
             }
+        }
+        if (problem) {
+            KilnText(
+                stringResource(R.string.editor_error_answers),
+                style = Kiln.type.body.copy(fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold, lineHeight = 16.sp),
+                color = Kiln.colors.err,
+            )
         }
         KilnButton(
             stringResource(R.string.editor_add_answer, MAX_OPTIONS),

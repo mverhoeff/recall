@@ -5,6 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.recall.data.db.Card
 import com.recall.data.db.CardType
 import com.recall.data.repo.DeckRepository
+import com.recall.io.ImportValidator
+import com.recall.io.ImportedCard
+import com.recall.io.ParsedFile
+import com.recall.io.RawCard
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -61,11 +65,15 @@ data class CardDraft(
         get() = if (type == CardType.MC) options.filterIndexed { index, _ -> index != correct } else emptyList()
 }
 
+enum class DraftProblem { PROMPT, ANSWERS, BACK }
+
 data class CardEditorUiState(
     val deckName: String,
     /** The card being edited, or null for a new one. */
     val original: Card?,
     val draft: CardDraft,
+    /** Only set once a save has been tried, and cleared as soon as the draft is fixed. */
+    val problem: DraftProblem? = null,
     val saved: Boolean = false,
 )
 
@@ -77,6 +85,7 @@ class CardEditorViewModel(
     private val _state = MutableStateFlow<CardEditorUiState?>(null)
     val state: StateFlow<CardEditorUiState?> = _state
 
+    private var checked = false
     private var saving = false
     private var savedJob: Job? = null
 
@@ -118,10 +127,17 @@ class CardEditorViewModel(
 
     fun setExplanation(text: String) = edit { it.copy(explanation = text) }
 
-    /** Saves the draft; [onSaved] runs once it is written. */
+    /** Saves the draft; [onSaved] runs once it is written. Does nothing while the draft has a problem. */
     fun save(onSaved: () -> Unit) {
         val current = _state.value ?: return
-        val card = current.draft.trimmed()
+        val card = when (val result = validate(current.draft)) {
+            is Validated.Bad -> {
+                checked = true
+                _state.value = current.copy(problem = result.problem)
+                return
+            }
+            is Validated.Good -> result.card
+        }
         if (saving) return
         saving = true
         viewModelScope.launch {
@@ -158,7 +174,8 @@ class CardEditorViewModel(
 
     /** Saves, then starts a fresh card of the same type and briefly says so. */
     fun saveAndAddNext() = save {
-        _state.update { it?.copy(original = null, draft = CardDraft(it.draft.type), saved = true) }
+        checked = false
+        _state.update { it?.copy(original = null, draft = CardDraft(it.draft.type), problem = null, saved = true) }
         savedJob?.cancel()
         savedJob = viewModelScope.launch {
             delay(SAVED_SHOWN_MS)
@@ -168,7 +185,9 @@ class CardEditorViewModel(
 
     private fun edit(change: (CardDraft) -> CardDraft) = _state.update { current ->
         current ?: return@update null
-        current.copy(draft = change(current.draft))
+        val draft = change(current.draft)
+        val problem = if (checked) (validate(draft) as? Validated.Bad)?.problem else null
+        current.copy(draft = draft, problem = problem)
     }
 }
 
@@ -184,10 +203,30 @@ internal fun draftOf(card: Card): CardDraft = when (card.type) {
     CardType.FLASH -> CardDraft(card.type, card.prompt, back = card.answer, explanation = card.explanation)
 }
 
-private fun CardDraft.trimmed() = copy(
-    prompt = prompt.trim(),
-    options = options.map { it.trim() }.filter { it.isNotEmpty() }.ifEmpty { listOf("") },
-    correct = options.take(correct).count { it.isNotBlank() },
-    back = back.trim(),
-    explanation = explanation.trim(),
-)
+private sealed interface Validated {
+    data class Good(val card: ImportedCard) : Validated
+    data class Bad(val problem: DraftProblem) : Validated
+}
+
+// The same rules as a file import, so a card typed here can never be one an import would refuse.
+private fun validate(draft: CardDraft): Validated {
+    val type = when (draft.type) {
+        CardType.MC -> "mc"
+        CardType.TF -> "tf"
+        CardType.FLASH -> "card"
+    }
+    val raw = RawCard(type, draft.prompt, draft.answer, draft.wrong, draft.explanation)
+    val parsed: ParsedFile.Deck = ImportValidator.fromJson(null, listOf(raw))
+    parsed.cards.firstOrNull()?.let { return Validated.Good(it) }
+    return Validated.Bad(problemFor(withoutPlace(parsed.issues.first().message)))
+}
+
+/** Drops the "Card 1: " an import puts in front of each message. */
+internal fun withoutPlace(message: String): String = message.substringAfter(": ")
+
+private fun problemFor(message: String): DraftProblem = when (message) {
+    "the prompt is empty." -> DraftProblem.PROMPT
+    "a choice card needs at least 2 answers." -> DraftProblem.ANSWERS
+    "the back of the card is empty." -> DraftProblem.BACK
+    else -> error("No field for \"$message\"")
+}

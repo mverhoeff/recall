@@ -10,6 +10,7 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -44,6 +45,44 @@ class CardEditorViewModelTest {
     fun tearDown() = Dispatchers.resetMain()
 
     private fun CardEditorViewModel.current() = state.value!!
+
+    @Test
+    fun choiceCardWithOneAnswerIsNotSaved() {
+        val store = FakeStore()
+        val viewModel = CardEditorViewModel(1, null, store)
+        viewModel.setPrompt("I have")
+        viewModel.setOption(0, "tengo")
+        var saved = false
+        viewModel.save { saved = true }
+
+        assertFalse(saved)
+        assertTrue(store.added.isEmpty())
+        assertEquals(DraftProblem.ANSWERS, viewModel.current().problem)
+    }
+
+    @Test
+    fun problemClearsOnceTheDraftIsFixed() {
+        val viewModel = CardEditorViewModel(1, null, FakeStore())
+        viewModel.setOption(0, "tengo")
+        viewModel.setOption(1, "tiene")
+        viewModel.save {}
+        assertEquals(DraftProblem.PROMPT, viewModel.current().problem)
+
+        viewModel.setPrompt("I have")
+        assertNull(viewModel.current().problem)
+    }
+
+    @Test
+    fun blankBackOfAFlashcardIsNotSaved() {
+        val store = FakeStore()
+        val viewModel = CardEditorViewModel(1, null, store)
+        viewModel.selectType(CardType.FLASH)
+        viewModel.setPrompt("poder · preterite · yo")
+        viewModel.save {}
+
+        assertEquals(DraftProblem.BACK, viewModel.current().problem)
+        assertTrue(store.added.isEmpty())
+    }
 
     @Test
     fun changingTheCorrectRadioUpdatesTheAnswer() {
