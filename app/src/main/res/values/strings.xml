@@ -118,6 +118,9 @@
     <string name="editor_delete_title">Delete this card?</string>
     <string name="editor_delete_body">The card and its progress will be removed.</string>
 
+    <string name="quiz_check">Check answer</string>
+    <string name="quiz_pick_all">Pick all that apply</string>
+
     <string name="action_back">Back</string>
     <string name="action_close">Close</string>
     <string name="action_cancel">Cancel</string>
