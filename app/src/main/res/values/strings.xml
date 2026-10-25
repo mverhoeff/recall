@@ -41,6 +41,10 @@
     <string name="new_deck_name">Deck name</string>
     <string name="new_deck_description">Description (optional)</string>
 
+    <string name="card_type_mc">Choice</string>
+    <string name="card_type_tf">True/false</string>
+    <string name="card_type_flash">Flashcard</string>
+
     <string name="deck_add_card">Add card</string>
     <string name="deck_more">More</string>
     <string name="deck_menu_rename">Rename</string>
@@ -76,6 +80,12 @@
     <string name="study_start_flashcards">Start flashcards</string>
     <string name="study_review_due">Review %d due</string>
     <string name="study_nothing_due">Nothing due in this deck</string>
+    <string name="deck_cards">Cards</string>
+    <string name="deck_see_all">See all %d</string>
+    <string name="card_list_caption">%1$s · %2$s</string>
+    <string name="card_due_in">in %d d</string>
+    <string name="card_due">due</string>
+    <string name="card_new">new</string>
 
     <string name="action_back">Back</string>
     <string name="action_cancel">Cancel</string>

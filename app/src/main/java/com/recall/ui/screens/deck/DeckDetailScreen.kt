@@ -10,11 +10,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -27,14 +29,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.recall.R
 import com.recall.RecallApp
+import com.recall.data.db.CardType
 import com.recall.data.db.StudyMode
 import com.recall.ui.kiln.ButtonSize
 import com.recall.ui.kiln.ButtonVariant
+import com.recall.ui.kiln.KilnBadge
 import com.recall.ui.kiln.KilnButton
 import com.recall.ui.kiln.KilnChip
 import com.recall.ui.kiln.KilnDialog
@@ -45,11 +50,13 @@ import com.recall.ui.kiln.KilnSurface
 import com.recall.ui.kiln.KilnTabs
 import com.recall.ui.kiln.KilnText
 import com.recall.ui.kiln.KilnToggle
+import com.recall.ui.kiln.rise
 import com.recall.ui.theme.Depth
 import com.recall.ui.theme.Kiln
 
 private val RoundSizes = listOf(5, 10, 20)
 private val StudyModes = listOf(StudyMode.QUIZ, StudyMode.FLASHCARDS, StudyMode.DUE)
+private const val PreviewRows = 3
 
 @Composable
 fun deckDetailViewModel(deckId: Long): DeckDetailViewModel {
@@ -62,6 +69,8 @@ fun DeckDetailScreen(
     deckId: Long,
     onBack: () -> Unit,
     onAddCard: () -> Unit,
+    onOpenCard: (Long) -> Unit,
+    onSeeAll: () -> Unit,
     onDeleted: () -> Unit,
     onStartStudy: (mode: StudyMode, size: Int, shuffle: Boolean, missedFirst: Boolean) -> Unit,
 ) {
@@ -139,6 +148,27 @@ fun DeckDetailScreen(
             }
             item(key = "panel") {
                 StudyPanelCard(current, viewModel, onStartStudy, Modifier.padding(top = 8.dp))
+            }
+            item(key = "cards-title") {
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(top = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    KilnText(stringResource(R.string.deck_cards), Modifier.weight(1f), style = Kiln.type.h3)
+                    if (current.cards.size > PreviewRows) {
+                        KilnButton(
+                            stringResource(R.string.deck_see_all, current.cards.size),
+                            onSeeAll,
+                            variant = ButtonVariant.Ghost,
+                            size = ButtonSize.Sm,
+                        )
+                    }
+                }
+            }
+            itemsIndexed(current.cards.take(PreviewRows), key = { _, it -> it.card.id }) { index, row ->
+                CardListRow(row, onClick = { onOpenCard(row.card.id) }, Modifier.rise(index))
             }
         }
         // The sheet is dropped at once when an action opens a dialog or the file picker, which covers it anyway.
@@ -270,3 +300,46 @@ private fun StudyPanelCard(
         }
     }
 }
+
+@Composable
+internal fun CardListRow(row: CardRow, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    KilnSurface(
+        modifier
+            .fillMaxWidth()
+            .defaultMinSize(minHeight = 72.dp),
+        depth = Depth.Mold1,
+        shape = RoundedCornerShape(18.dp),
+        onClick = onClick,
+    ) {
+        Row(
+            Modifier
+                .align(Alignment.CenterStart)
+                .padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                KilnBadge(cardTypeName(row.card.type))
+                KilnText(row.card.prompt, style = Kiln.type.bodyStrong, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            }
+            KilnText(
+                when (val next = row.next) {
+                    NextDue.New -> stringResource(R.string.card_new)
+                    NextDue.Due -> stringResource(R.string.card_due)
+                    is NextDue.InDays -> stringResource(R.string.card_due_in, next.days)
+                },
+                style = Kiln.type.caption,
+                color = Kiln.colors.ink2,
+            )
+        }
+    }
+}
+
+@Composable
+internal fun cardTypeName(type: CardType): String = stringResource(
+    when (type) {
+        CardType.MC -> R.string.card_type_mc
+        CardType.TF -> R.string.card_type_tf
+        CardType.FLASH -> R.string.card_type_flash
+    },
+)

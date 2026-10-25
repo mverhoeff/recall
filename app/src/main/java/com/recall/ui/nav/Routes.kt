@@ -15,6 +15,9 @@ data object Settings
 data class DeckDetail(val deckId: Long)
 
 @Serializable
+data class CardList(val deckId: Long)
+
+@Serializable
 data class CardEditor(val deckId: Long, val cardId: Long? = null)
 
 /** [cardIds] is comma-joined, for retrying exactly the cards missed in a round. */
