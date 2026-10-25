@@ -17,6 +17,7 @@ import com.recall.ui.kiln.RiseEntrance
 import com.recall.ui.screens.PlaceholderScreen
 import com.recall.ui.screens.deck.CardListScreen
 import com.recall.ui.screens.deck.DeckDetailScreen
+import com.recall.ui.screens.editor.CardEditorScreen
 import com.recall.ui.theme.Kiln
 
 // The page underneath moves a quarter of the way, so the two pages don't travel as one sheet.
@@ -58,7 +59,10 @@ fun KilnNavHost(navController: NavHostController, modifier: Modifier = Modifier)
                 onOpenCard = { navController.navigate(CardEditor(deckId, it)) },
             )
         }
-        page<CardEditor> { PlaceholderScreen("Card") }
+        page<CardEditor> { entry ->
+            val route = entry.toRoute<CardEditor>()
+            CardEditorScreen(route.deckId, route.cardId, onClose = { navController.back(entry) })
+        }
         page<Study> { PlaceholderScreen("Study") }
         page<Results> { PlaceholderScreen("Results") }
         page<Import> { PlaceholderScreen("Import") }

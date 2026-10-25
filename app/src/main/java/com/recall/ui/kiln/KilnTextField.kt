@@ -38,7 +38,7 @@ private val FieldShape = RoundedCornerShape(18.dp)
 fun KilnTextField(
     value: String,
     onValueChange: (String) -> Unit,
-    label: String,
+    label: String?,
     modifier: Modifier = Modifier,
     placeholder: String? = null,
     hint: String? = null,
@@ -55,11 +55,13 @@ fun KilnTextField(
     val textStyle = Kiln.type.body.copy(fontWeight = FontWeight.Medium, color = colors.ink)
 
     Column(modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        KilnText(
-            label,
-            style = Kiln.type.body.copy(fontSize = 13.sp, fontWeight = FontWeight.Bold, lineHeight = 16.sp),
-            color = colors.ink2,
-        )
+        if (label != null) {
+            KilnText(
+                label,
+                style = Kiln.type.body.copy(fontSize = 13.sp, fontWeight = FontWeight.Bold, lineHeight = 16.sp),
+                color = colors.ink2,
+            )
+        }
         BasicTextField(
             value = value,
             onValueChange = onValueChange,

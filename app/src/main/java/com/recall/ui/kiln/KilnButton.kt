@@ -50,13 +50,14 @@ fun KilnButton(
     leadingIcon: ImageVector? = null,
     trailingIcon: ImageVector? = null,
     restDepth: Depth? = null,
+    horizontalPadding: Dp = size.padding,
 ) {
     val style = when (size) {
         ButtonSize.Sm -> Kiln.type.buttonSm
         ButtonSize.Md -> Kiln.type.button
         ButtonSize.Lg -> Kiln.type.buttonLg
     }
-    ButtonFrame(onClick, modifier, variant, size, enabled, pressed, size.padding, restDepth) {
+    ButtonFrame(onClick, modifier, variant, size, enabled, pressed, horizontalPadding, restDepth) {
         if (leadingIcon != null) KilnIcon(leadingIcon, contentDescription = null, size = 22.dp)
         KilnText(text, style = style, maxLines = 1)
         if (trailingIcon != null) KilnIcon(trailingIcon, contentDescription = null, size = 22.dp)
