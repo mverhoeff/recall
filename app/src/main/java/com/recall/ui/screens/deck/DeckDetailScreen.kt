@@ -50,6 +50,7 @@ import com.recall.ui.kiln.KilnSurface
 import com.recall.ui.kiln.KilnTabs
 import com.recall.ui.kiln.KilnText
 import com.recall.ui.kiln.KilnToggle
+import com.recall.ui.kiln.arrival
 import com.recall.ui.kiln.rise
 import com.recall.ui.theme.Depth
 import com.recall.ui.theme.Kiln
@@ -76,6 +77,7 @@ fun DeckDetailScreen(
 ) {
     val viewModel = deckDetailViewModel(deckId)
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val arrival = Modifier.arrival(state != null)
     val current = state ?: return
     val summary = current.summary
     val context = LocalContext.current
@@ -87,7 +89,7 @@ fun DeckDetailScreen(
     }
 
     val safe = WindowInsets.safeDrawing.asPaddingValues()
-    Box(Modifier.fillMaxSize()) {
+    Box(Modifier.fillMaxSize().then(arrival)) {
         LazyColumn(
             Modifier.fillMaxSize(),
             contentPadding = PaddingValues(

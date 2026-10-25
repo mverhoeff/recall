@@ -1,6 +1,11 @@
 package com.recall.ui
 
 import android.app.Activity
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -66,23 +72,34 @@ fun AppRoot(container: AppContainer) {
 
 @Composable
 private fun TopLevelBar(navController: NavHostController, modifier: Modifier) {
-    val destination = navController.currentBackStackEntryAsState().value?.destination ?: return
-    val selected = TopLevel.entries.indexOfFirst { destination.hasRoute(it.route::class) }
-    if (selected < 0) return
+    val motion = Kiln.motion
+    val destination = navController.currentBackStackEntryAsState().value?.destination
+    val selected = TopLevel.entries.indexOfFirst { destination?.hasRoute(it.route::class) == true }
+    // While the bar fades out it keeps showing the tab it was on.
+    val last = remember { intArrayOf(0) }
+    if (selected >= 0) last[0] = selected
 
-    KilnBottomBar(
-        items = TopLevel.entries.map { BottomBarItem(it.icon, stringResource(it.label)) },
-        selectedIndex = selected,
-        onSelect = { index ->
-            navController.navigate(TopLevel.entries[index].route) {
-                // Tabs keep their own back stacks and scroll positions instead of piling up.
-                popUpTo(Library) { saveState = true }
-                launchSingleTop = true
-                restoreState = true
-            }
-        },
-        modifier = modifier
-            .navigationBarsPadding()
-            .padding(20.dp),
-    )
+    // Timed like the pages, so the bar leaves and returns together with the screen beneath it.
+    AnimatedVisibility(
+        visible = selected >= 0,
+        modifier = modifier,
+        enter = fadeIn(motion.base(delay = 90)) + scaleIn(motion.base(delay = 90), initialScale = 0.94f),
+        exit = fadeOut(motion.fast()) + scaleOut(motion.fast(), targetScale = 0.94f),
+    ) {
+        KilnBottomBar(
+            items = TopLevel.entries.map { BottomBarItem(it.icon, stringResource(it.label)) },
+            selectedIndex = last[0],
+            onSelect = { index ->
+                navController.navigate(TopLevel.entries[index].route) {
+                    // Tabs keep their own back stacks and scroll positions instead of piling up.
+                    popUpTo(Library) { saveState = true }
+                    launchSingleTop = true
+                    restoreState = true
+                }
+            },
+            modifier = Modifier
+                .navigationBarsPadding()
+                .padding(20.dp),
+        )
+    }
 }

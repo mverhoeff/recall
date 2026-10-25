@@ -63,6 +63,7 @@ import com.recall.ui.kiln.KilnTile
 import com.recall.ui.kiln.SurfaceTone
 import com.recall.ui.kiln.TileSize
 import com.recall.ui.kiln.TileTone
+import com.recall.ui.kiln.arrival
 import com.recall.ui.kiln.rise
 import com.recall.ui.theme.Depth
 import com.recall.ui.theme.Kiln
@@ -81,6 +82,7 @@ fun LibraryScreen(onOpenDeck: (Long) -> Unit, onImport: () -> Unit, onStartRevie
     val container = (LocalContext.current.applicationContext as RecallApp).container
     val viewModel = viewModel { LibraryViewModel(container.decks, container.database.reviewDao(), container.clock) }
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val arrival = Modifier.arrival(state != null)
     val current = state ?: return
     var creating by rememberSaveable { mutableStateOf(false) }
 
@@ -88,7 +90,7 @@ fun LibraryScreen(onOpenDeck: (Long) -> Unit, onImport: () -> Unit, onStartRevie
 
     val safe = WindowInsets.safeDrawing.asPaddingValues()
     val navBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-    Box(Modifier.fillMaxSize()) {
+    Box(Modifier.fillMaxSize().then(arrival)) {
         LazyColumn(
             Modifier.fillMaxSize(),
             contentPadding = PaddingValues(

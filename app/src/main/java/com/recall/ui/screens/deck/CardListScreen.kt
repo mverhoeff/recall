@@ -24,6 +24,7 @@ import com.recall.R
 import com.recall.ui.kiln.KilnIconButton
 import com.recall.ui.kiln.KilnIcons
 import com.recall.ui.kiln.KilnText
+import com.recall.ui.kiln.arrival
 import com.recall.ui.kiln.rise
 import com.recall.ui.theme.Kiln
 
@@ -31,11 +32,14 @@ import com.recall.ui.theme.Kiln
 fun CardListScreen(deckId: Long, onBack: () -> Unit, onOpenCard: (Long) -> Unit) {
     val viewModel = deckDetailViewModel(deckId)
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val arrival = Modifier.arrival(state != null)
     val current = state ?: return
 
     val safe = WindowInsets.safeDrawing.asPaddingValues()
     LazyColumn(
-        Modifier.fillMaxSize(),
+        Modifier
+            .fillMaxSize()
+            .then(arrival),
         contentPadding = PaddingValues(
             start = 20.dp,
             end = 20.dp,

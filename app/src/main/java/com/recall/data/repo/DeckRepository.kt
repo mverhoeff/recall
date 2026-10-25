@@ -38,6 +38,13 @@ class DeckRepository(
     ) { all, _, newPerDay -> all to newPerDay }
         .map { (all, newPerDay) -> all.map { summarize(it, newPerDay) } }
 
+    /** One deck's counts, or null once it is deleted. Cheaper than picking it out of [summaries]. */
+    fun summary(deckId: Long): Flow<DeckSummary?> = combine(
+        database.invalidationTracker.createFlow("decks", "cards", "review_state", "review_logs"),
+        settings.settings.map { it.newPerDay }.distinctUntilChanged(),
+    ) { _, newPerDay -> newPerDay }
+        .map { newPerDay -> decks.get(deckId)?.let { summarize(it, newPerDay) } }
+
     fun cardsForDeck(deckId: Long): Flow<List<Card>> = cards.observeByDeck(deckId)
 
     suspend fun createDeck(name: String, description: String = ""): Long {

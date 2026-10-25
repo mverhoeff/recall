@@ -67,9 +67,7 @@ class DeckDetailViewModel(
 ) : ViewModel() {
     private val panel = MutableStateFlow(StudyPanel())
 
-    private val details = repository.summaries.map { all ->
-        all.find { it.deck.id == deckId }?.let { summary -> load(summary) }
-    }
+    private val details = repository.summary(deckId).map { summary -> summary?.let { load(it) } }
 
     val state: StateFlow<DeckDetailUiState?> = combine(details, panel) { loaded, panel ->
         loaded?.copy(panel = panel)
