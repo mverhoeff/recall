@@ -2,16 +2,20 @@ package com.recall.ui.screens.results
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -52,6 +56,10 @@ import com.recall.ui.theme.Depth
 import com.recall.ui.theme.Kiln
 
 private const val PROMPT_MAX = 32
+private const val SHORT_LIST = 20
+
+// About eight rows, so the buttons and the top of the page stay in reach.
+private val LongListHeight = 440.dp
 private const val GOOD_ACCURACY = 70
 private const val FAIR_ACCURACY = 40
 
@@ -157,33 +165,48 @@ private fun Score(result: SessionResult) {
     }
 }
 
-/** One row per card in the order played, flagged as right or missed. */
+/**
+ * One row per card in the order played, flagged as right or missed. A long round scrolls inside the
+ * well, so only the rows on screen are built.
+ */
 @Composable
 private fun AnswerList(results: List<ItemResult>) {
     KilnSurface(Modifier.fillMaxWidth(), depth = Depth.Dip, shape = RoundedCornerShape(18.dp)) {
-        Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
-            results.forEachIndexed { index, item ->
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    KilnText(
-                        stringResource(R.string.results_row, index + 1, shortPrompt(item.card.prompt)),
-                        Modifier.weight(1f),
-                        style = Kiln.type.small,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    if (item.correct) {
-                        KilnBadge(stringResource(R.string.results_badge_correct), tone = BadgeTone.Ok)
-                    } else {
-                        KilnBadge(stringResource(R.string.results_badge_missed), tone = BadgeTone.Err)
-                    }
-                }
+        if (results.size <= SHORT_LIST) {
+            Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                results.forEachIndexed { index, item -> AnswerRow(index, item) }
             }
+        } else {
+            LazyColumn(
+                Modifier.heightIn(max = LongListHeight),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            ) {
+                itemsIndexed(results) { index, item -> AnswerRow(index, item) }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AnswerRow(index: Int, item: ItemResult) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        KilnText(
+            stringResource(R.string.results_row, index + 1, shortPrompt(item.card.prompt)),
+            Modifier.weight(1f),
+            style = Kiln.type.small,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+        if (item.correct) {
+            KilnBadge(stringResource(R.string.results_badge_correct), tone = BadgeTone.Ok)
+        } else {
+            KilnBadge(stringResource(R.string.results_badge_missed), tone = BadgeTone.Err)
         }
     }
 }
