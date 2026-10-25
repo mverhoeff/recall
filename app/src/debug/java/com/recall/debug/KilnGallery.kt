@@ -23,12 +23,15 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import com.recall.RecallApp
 import com.recall.ui.kiln.BadgeTone
 import com.recall.ui.kiln.BlobShape
 import com.recall.ui.kiln.BlobTone
@@ -64,6 +67,7 @@ import com.recall.ui.theme.kilnDepth
 import com.recall.ui.theme.kilnGround
 import com.recall.ui.theme.kilnTypography
 import com.recall.ui.theme.resolve
+import kotlinx.coroutines.launch
 
 @Composable
 fun KilnGallery() {
@@ -84,6 +88,7 @@ fun KilnGallery() {
                 verticalArrangement = Arrangement.spacedBy(28.dp),
             ) {
                 PaletteSwitcher(body, dark, onBody = { body = it }, onDark = { darkOverride = !dark })
+                SeedButton()
                 ChipsAndBadges()
                 TilesAndProgress()
                 Controls()
@@ -114,6 +119,19 @@ fun KilnGallery() {
             )
         }
     }
+}
+
+@Composable
+private fun SeedButton() {
+    val container = (LocalContext.current.applicationContext as RecallApp).container
+    val scope = rememberCoroutineScope()
+    var seeded by rememberSaveable { mutableStateOf(false) }
+    KilnButton(
+        if (seeded) "Sample decks added" else "Seed sample decks",
+        onClick = { scope.launch { SampleData.seed(container); seeded = true } },
+        variant = ButtonVariant.Secondary,
+        enabled = !seeded,
+    )
 }
 
 /** Shows [content] on the ground and again inside a Mold2 panel, to compare both contexts. */
