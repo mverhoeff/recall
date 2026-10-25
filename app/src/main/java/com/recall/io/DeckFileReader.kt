@@ -24,10 +24,10 @@ object DeckFileReader {
             return ParsedFile.Failure(NOT_UTF8)
         }
 
-        val parsed = if (text.trimStart().startsWith('{')) {
-            DeckJsonCodec.decode(text)
-        } else {
-            ImportValidator.fromCsv(CsvParser.parse(text))
+        val parsed = when {
+            !text.trimStart().startsWith('{') -> ImportValidator.fromCsv(CsvParser.parse(text))
+            BackupCodec.isBackup(text) -> BackupCodec.decode(text)
+            else -> DeckJsonCodec.decode(text)
         }
         if (parsed !is ParsedFile.Deck || parsed.name != null) return parsed
         return parsed.copy(name = fileName.substringBeforeLast('.').trim().ifEmpty { null })

@@ -40,5 +40,10 @@ sealed interface ParsedFile {
             )
     }
 
+    data class Backup(val backup: BackupFileDto) : ParsedFile {
+        val deckCount: Int get() = backup.decks.size
+        val cardCount: Int get() = backup.decks.sumOf { it.cards.size }
+    }
+
     data class Failure(val message: String) : ParsedFile
 }
