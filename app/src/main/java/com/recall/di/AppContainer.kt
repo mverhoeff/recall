@@ -7,6 +7,7 @@ import com.recall.data.repo.BackupRepository
 import com.recall.data.repo.DeckRepository
 import com.recall.data.repo.StudyRepository
 import com.recall.data.settings.SettingsRepository
+import com.recall.domain.session.SessionStore
 import java.time.Clock
 
 private val Context.settingsStore by preferencesDataStore(name = "settings")
@@ -25,4 +26,6 @@ class AppContainer(context: Context) {
     val study: StudyRepository by lazy { StudyRepository(database, clock) }
 
     val backup: BackupRepository by lazy { BackupRepository(database, settings, clock) }
+
+    val sessions = SessionStore()
 }
