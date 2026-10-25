@@ -42,6 +42,17 @@
     <string name="new_deck_description">Description (optional)</string>
 
     <string name="deck_add_card">Add card</string>
+    <string name="deck_more">More</string>
+    <string name="deck_menu_rename">Rename</string>
+    <string name="deck_menu_export">Export deck (JSON)</string>
+    <string name="deck_menu_delete">Delete deck</string>
+    <string name="deck_rename_title">Rename deck</string>
+    <string name="deck_delete_title">Delete this deck?</string>
+    <plurals name="deck_delete_body">
+        <item quantity="one">Its %d card and its progress will be removed.</item>
+        <item quantity="other">Its %d cards and their progress will be removed.</item>
+    </plurals>
+    <string name="deck_delete_body_empty">This deck has no cards.</string>
     <string name="deck_label">Deck · %s</string>
     <string name="stat_due">Due</string>
     <string name="stat_known">Known</string>
@@ -69,4 +80,6 @@
     <string name="action_back">Back</string>
     <string name="action_cancel">Cancel</string>
     <string name="action_create">Create</string>
+    <string name="action_save">Save</string>
+    <string name="action_delete">Delete</string>
 </resources>

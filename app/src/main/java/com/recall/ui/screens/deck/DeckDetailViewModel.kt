@@ -1,11 +1,15 @@
 package com.recall.ui.screens.deck
 
+import android.content.ContentResolver
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.recall.data.db.RecallDatabase
 import com.recall.data.db.StudyMode
 import com.recall.data.repo.DeckRepository
 import com.recall.data.repo.DeckSummary
+import com.recall.io.DeckJsonCodec
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -13,6 +17,9 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.IOException
 import java.time.Clock
 import java.time.Duration
 
@@ -60,6 +67,32 @@ class DeckDetailViewModel(
     fun setShuffle(on: Boolean) = panel.update { it.copy(shuffle = on) }
 
     fun setMissedFirst(on: Boolean) = panel.update { it.copy(missedFirst = on) }
+
+    fun rename(name: String) {
+        viewModelScope.launch { repository.renameDeck(deckId, name) }
+    }
+
+    fun delete(onDeleted: () -> Unit) {
+        viewModelScope.launch {
+            repository.deleteDeck(deckId)
+            onDeleted()
+        }
+    }
+
+    fun export(resolver: ContentResolver, uri: Uri) {
+        viewModelScope.launch {
+            val deck = database.deckDao().get(deckId) ?: return@launch
+            val text = DeckJsonCodec.encode(deck, database.cardDao().byDeck(deckId))
+            withContext(Dispatchers.IO) {
+                // The picker can hand back a location that refuses writes; there is nothing to recover then.
+                try {
+                    resolver.openOutputStream(uri, "wt")?.use { it.write(text.toByteArray()) }
+                } catch (_: IOException) {
+                } catch (_: SecurityException) {
+                }
+            }
+        }
+    }
 
     private suspend fun load(summary: DeckSummary): DeckDetailUiState {
         val now = clock.instant()

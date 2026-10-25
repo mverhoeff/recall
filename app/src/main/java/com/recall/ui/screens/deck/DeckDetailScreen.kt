@@ -1,6 +1,9 @@
 package com.recall.ui.screens.deck
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -15,6 +18,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -31,6 +37,7 @@ import com.recall.ui.kiln.ButtonSize
 import com.recall.ui.kiln.ButtonVariant
 import com.recall.ui.kiln.KilnButton
 import com.recall.ui.kiln.KilnChip
+import com.recall.ui.kiln.KilnDialog
 import com.recall.ui.kiln.KilnIconButton
 import com.recall.ui.kiln.KilnIcons
 import com.recall.ui.kiln.KilnProgress
@@ -55,74 +62,117 @@ fun DeckDetailScreen(
     deckId: Long,
     onBack: () -> Unit,
     onAddCard: () -> Unit,
+    onDeleted: () -> Unit,
     onStartStudy: (mode: StudyMode, size: Int, shuffle: Boolean, missedFirst: Boolean) -> Unit,
 ) {
     val viewModel = deckDetailViewModel(deckId)
     val state by viewModel.state.collectAsStateWithLifecycle()
     val current = state ?: return
     val summary = current.summary
+    val context = LocalContext.current
+    var menuOpen by rememberSaveable { mutableStateOf(false) }
+    var renaming by rememberSaveable { mutableStateOf(false) }
+    var deleting by rememberSaveable { mutableStateOf(false) }
+    val exporter = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+        if (uri != null) viewModel.export(context.contentResolver, uri)
+    }
 
     val safe = WindowInsets.safeDrawing.asPaddingValues()
-    LazyColumn(
-        Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(
-            start = 20.dp,
-            end = 20.dp,
-            top = safe.calculateTopPadding() + 12.dp,
-            bottom = safe.calculateBottomPadding() + 24.dp,
-        ),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        item(key = "bar") {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                KilnIconButton(KilnIcons.back, stringResource(R.string.action_back), onBack)
-                Spacer(Modifier.weight(1f))
-                KilnIconButton(KilnIcons.plus, stringResource(R.string.deck_add_card), onAddCard)
-            }
-        }
-        item(key = "title") {
-            Column(Modifier.padding(top = 8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                KilnText(
-                    stringResource(R.string.deck_label, pluralStringResource(R.plurals.card_count, summary.cardCount, summary.cardCount)),
-                    style = Kiln.type.label,
-                    color = Kiln.colors.ink2,
-                    uppercase = true,
-                )
-                KilnText(summary.deck.name, style = Kiln.type.h1)
-                if (summary.deck.description.isNotBlank()) {
-                    KilnText(summary.deck.description, style = Kiln.type.small, color = Kiln.colors.ink2)
+    Box(Modifier.fillMaxSize()) {
+        LazyColumn(
+            Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(
+                start = 20.dp,
+                end = 20.dp,
+                top = safe.calculateTopPadding() + 12.dp,
+                bottom = safe.calculateBottomPadding() + 24.dp,
+            ),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            item(key = "bar") {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    KilnIconButton(KilnIcons.back, stringResource(R.string.action_back), onBack)
+                    Spacer(Modifier.weight(1f))
+                    KilnIconButton(KilnIcons.plus, stringResource(R.string.deck_add_card), onAddCard)
+                    KilnIconButton(KilnIcons.more, stringResource(R.string.deck_more), { menuOpen = true })
                 }
             }
-        }
-        item(key = "stats") {
-            val none = stringResource(R.string.stat_none)
-            Row(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                StatTile(summary.dueCount.toString(), stringResource(R.string.stat_due), Modifier.weight(1f))
-                StatTile(
-                    if (summary.cardCount == 0) none else stringResource(R.string.percent, summary.knownCount * 100 / summary.cardCount),
-                    stringResource(R.string.stat_known),
-                    Modifier.weight(1f),
-                )
-                StatTile(
-                    current.accuracy?.let { stringResource(R.string.percent, it) } ?: none,
-                    stringResource(R.string.stat_accuracy),
-                    Modifier.weight(1f),
-                )
+            item(key = "title") {
+                Column(Modifier.padding(top = 8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    KilnText(
+                        stringResource(R.string.deck_label, pluralStringResource(R.plurals.card_count, summary.cardCount, summary.cardCount)),
+                        style = Kiln.type.label,
+                        color = Kiln.colors.ink2,
+                        uppercase = true,
+                    )
+                    KilnText(summary.deck.name, style = Kiln.type.h1)
+                    if (summary.deck.description.isNotBlank()) {
+                        KilnText(summary.deck.description, style = Kiln.type.small, color = Kiln.colors.ink2)
+                    }
+                }
+            }
+            item(key = "stats") {
+                val none = stringResource(R.string.stat_none)
+                Row(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    StatTile(summary.dueCount.toString(), stringResource(R.string.stat_due), Modifier.weight(1f))
+                    StatTile(
+                        if (summary.cardCount == 0) none else stringResource(R.string.percent, summary.knownCount * 100 / summary.cardCount),
+                        stringResource(R.string.stat_known),
+                        Modifier.weight(1f),
+                    )
+                    StatTile(
+                        current.accuracy?.let { stringResource(R.string.percent, it) } ?: none,
+                        stringResource(R.string.stat_accuracy),
+                        Modifier.weight(1f),
+                    )
+                }
+            }
+            item(key = "progress") {
+                Column(Modifier.padding(top = 4.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    KilnProgress(if (summary.cardCount == 0) 0f else summary.knownCount / summary.cardCount.toFloat())
+                    KilnText(
+                        stringResource(R.string.deck_progress_caption, summary.knownCount, summary.learningCount, summary.newCount),
+                        style = Kiln.type.caption,
+                        color = Kiln.colors.ink2,
+                    )
+                }
+            }
+            item(key = "panel") {
+                StudyPanelCard(current, viewModel, onStartStudy, Modifier.padding(top = 8.dp))
             }
         }
-        item(key = "progress") {
-            Column(Modifier.padding(top = 4.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                KilnProgress(if (summary.cardCount == 0) 0f else summary.knownCount / summary.cardCount.toFloat())
-                KilnText(
-                    stringResource(R.string.deck_progress_caption, summary.knownCount, summary.learningCount, summary.newCount),
-                    style = Kiln.type.caption,
-                    color = Kiln.colors.ink2,
-                )
-            }
-        }
-        item(key = "panel") {
-            StudyPanelCard(current, viewModel, onStartStudy, Modifier.padding(top = 8.dp))
-        }
+        // The sheet is dropped at once when an action opens a dialog or the file picker, which covers it anyway.
+        DeckMenuSheet(
+            visible = menuOpen,
+            onDismiss = { menuOpen = false },
+            onRename = { menuOpen = false; renaming = true },
+            onExport = { menuOpen = false; exporter.launch(deckFileName(summary.deck.name)) },
+            onDelete = { menuOpen = false; deleting = true },
+            modifier = Modifier.align(Alignment.BottomCenter),
+        )
+    }
+
+    if (renaming) {
+        RenameDeckDialog(
+            name = summary.deck.name,
+            onDismiss = { renaming = false },
+            onRename = { renaming = false; viewModel.rename(it) },
+        )
+    }
+    if (deleting) {
+        KilnDialog(
+            title = stringResource(R.string.deck_delete_title),
+            body = if (summary.cardCount == 0) {
+                stringResource(R.string.deck_delete_body_empty)
+            } else {
+                pluralStringResource(R.plurals.deck_delete_body, summary.cardCount, summary.cardCount)
+            },
+            confirmText = stringResource(R.string.action_delete),
+            onConfirm = { deleting = false; viewModel.delete(onDeleted) },
+            dismissText = stringResource(R.string.action_cancel),
+            onDismiss = { deleting = false },
+            destructive = true,
+        )
     }
 }
 

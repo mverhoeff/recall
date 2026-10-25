@@ -43,6 +43,7 @@ fun KilnNavHost(navController: NavHostController, modifier: Modifier = Modifier)
                 deckId = deckId,
                 onBack = { navController.popBackStack() },
                 onAddCard = { navController.navigate(CardEditor(deckId)) },
+                onDeleted = { navController.popBackStack() },
                 onStartStudy = { mode, size, shuffle, missedFirst ->
                     navController.navigate(Study(mode.name, deckId, size = size, shuffle = shuffle, missedFirst = missedFirst))
                 },
