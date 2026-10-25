@@ -9,6 +9,8 @@ data class RawCard(
     val answer: String,
     val wrong: List<String> = emptyList(),
     val explanation: String = "",
+    /** Correct options beyond [answer]; only read for choice cards. */
+    val alsoCorrect: List<String> = emptyList(),
 )
 
 data class ImportedCard(
@@ -17,6 +19,7 @@ data class ImportedCard(
     val answer: String,
     val wrong: List<String>,
     val explanation: String,
+    val alsoCorrect: List<String> = emptyList(),
 )
 
 data class ImportIssue(val message: String)

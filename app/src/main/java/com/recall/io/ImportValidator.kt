@@ -18,6 +18,7 @@ object ImportValidator {
         val answer = column("answer")
         if (type < 0 || prompt < 0 || answer < 0) return ParsedFile.Failure(MISSING_HEADER)
         val wrong = (1..5).map { column("wrong$it") }
+        val alsoCorrect = (2..5).map { column("answer$it") }
         val explanation = column("explanation")
 
         val cards = mutableListOf<ImportedCard>()
@@ -25,7 +26,7 @@ object ImportValidator {
         for (row in rows.drop(headerIndex + 1)) {
             if (row.isBlank()) continue
             fun at(index: Int) = row.fields.getOrNull(index).orEmpty()
-            val raw = RawCard(at(type), at(prompt), at(answer), wrong.map(::at), at(explanation))
+            val raw = RawCard(at(type), at(prompt), at(answer), wrong.map(::at), at(explanation), alsoCorrect.map(::at))
             check(raw, "Row ${row.number}").fold(cards::add, issues::add)
         }
         return ParsedFile.Deck(name = null, cards, issues, FileKind.CSV)
@@ -52,13 +53,17 @@ object ImportValidator {
         if (prompt.isEmpty()) return Checked.Bad("$where: the prompt is empty.")
         return when (type) {
             CardType.MC -> {
-                val options = (listOf(answer) + raw.wrong.map { it.trim() })
+                val correct = (listOf(answer) + raw.alsoCorrect.map { it.trim() })
+                    .filter { it.isNotEmpty() }
+                    .distinctBy { it.lowercase() }
+                // Correct options come first, so a wrong one repeating a correct one is the one dropped.
+                val options = (correct + raw.wrong.map { it.trim() })
                     .filter { it.isNotEmpty() }
                     .distinctBy { it.lowercase() }
                 if (answer.isEmpty() || options.size < 2) {
                     Checked.Bad("$where: a choice card needs at least 2 answers.")
                 } else {
-                    Checked.Good(ImportedCard(type, prompt, answer, options.drop(1), explanation))
+                    Checked.Good(ImportedCard(type, prompt, answer, options.drop(correct.size), explanation, correct.drop(1)))
                 }
             }
             CardType.TF -> when (answer.lowercase()) {

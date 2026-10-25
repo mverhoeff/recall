@@ -41,12 +41,27 @@ class DeckJsonCodecTest {
     }
 
     @Test
+    fun severalCorrectAnswersSurviveARoundTrip() {
+        val multi = card(0, CardType.MC, "Which builders start a coroutine?", "launch", listOf("delay"))
+            .copy(alsoCorrect = listOf("async"))
+        val text = DeckJsonCodec.encode(deck, listOf(multi))
+        assertTrue(text.contains("\"alsoCorrect\""))
+
+        val parsed = DeckJsonCodec.decode(text) as ParsedFile.Deck
+        assertEquals(
+            listOf(ImportedCard(CardType.MC, "Which builders start a coroutine?", "launch", listOf("delay"), "", listOf("async"))),
+            parsed.cards,
+        )
+    }
+
+    @Test
     fun encodingWritesTheFormatHeaderAndSkipsEmptyFields() {
         val text = DeckJsonCodec.encode(deck, cards)
         assertTrue(text.contains("\"format\": \"recall-deck\""))
         assertTrue(text.contains("\"version\": 1"))
         assertTrue(text.contains("\"type\": \"card\""))
         assertFalse(text.contains("\"wrong\": []"))
+        assertFalse(text.contains("alsoCorrect"))
         assertTrue(text.lines().size > 10)
     }
 

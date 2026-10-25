@@ -54,6 +54,7 @@ data class BackupCardDto(
     val prompt: String,
     val answer: String,
     val wrong: List<String> = emptyList(),
+    val alsoCorrect: List<String> = emptyList(),
     val explanation: String = "",
     val position: Int = 0,
     val createdAt: Long = 0,

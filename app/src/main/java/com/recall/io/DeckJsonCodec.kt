@@ -36,6 +36,7 @@ data class CardDto(
     val answer: String = "",
     val wrong: List<String> = emptyList(),
     val explanation: String = "",
+    val alsoCorrect: List<String> = emptyList(),
 )
 
 object DeckJsonCodec {
@@ -85,7 +86,8 @@ object DeckJsonCodec {
         answer = answer,
         wrong = if (type == CardType.MC) wrongAnswers else emptyList(),
         explanation = explanation,
+        alsoCorrect = if (type == CardType.MC) alsoCorrect else emptyList(),
     )
 
-    fun CardDto.toRaw() = RawCard(type, prompt, answer, wrong, explanation)
+    fun CardDto.toRaw() = RawCard(type, prompt, answer, wrong, explanation, alsoCorrect)
 }

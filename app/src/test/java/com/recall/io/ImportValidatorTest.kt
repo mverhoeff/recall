@@ -36,6 +36,27 @@ class ImportValidatorTest {
     }
 
     @Test
+    fun choiceCardsMayHaveSeveralCorrectAnswers() {
+        val parsed = deck(
+            """
+            type,prompt,answer,answer2,answer3,wrong1,wrong2
+            mc,Which builders start a coroutine?,launch,async, ASYNC ,delay,launch
+            """.trimIndent(),
+        )
+        // The repeated correct answer and the wrong one that copies a correct one are both dropped.
+        assertEquals(
+            listOf(ImportedCard(CardType.MC, "Which builders start a coroutine?", "launch", listOf("delay"), "", listOf("async"))),
+            parsed.cards,
+        )
+    }
+
+    @Test
+    fun extraCorrectAnswersAreIgnoredOutsideChoiceCards() {
+        val parsed = deck("type,prompt,answer,answer2\ncard,France,Paris,Lyon\n")
+        assertEquals(listOf(ImportedCard(CardType.FLASH, "France", "Paris", emptyList(), "")), parsed.cards)
+    }
+
+    @Test
     fun headerMayBeInAnyOrderAndCase() {
         val parsed = deck("Answer; EXPLANATION ;Prompt;Type;notes\n  hello ;;hola; CARD ;ignored\n")
         assertEquals(listOf(ImportedCard(CardType.FLASH, "hola", "hello", emptyList(), "")), parsed.cards)

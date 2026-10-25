@@ -1,5 +1,6 @@
 package com.recall.data.db
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -24,7 +25,7 @@ data class Deck(
 
 /**
  * [answer] is the correct option for MC, "true" or "false" for TF, and the back side for FLASH.
- * [wrongAnswers] is only filled for MC.
+ * [alsoCorrect] holds any further correct options and [wrongAnswers] the others; both are only filled for MC.
  */
 @Entity(
     tableName = "cards",
@@ -40,6 +41,7 @@ data class Card(
     val prompt: String,
     val answer: String,
     val wrongAnswers: List<String> = emptyList(),
+    @ColumnInfo(defaultValue = "[]") val alsoCorrect: List<String> = emptyList(),
     val explanation: String = "",
     val position: Int,
     val createdAt: Long,
