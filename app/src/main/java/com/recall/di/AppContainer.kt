@@ -12,12 +12,13 @@ import java.time.Clock
 
 private val Context.settingsStore by preferencesDataStore(name = "settings")
 
-class AppContainer(context: Context) {
+/** [testDatabase] lets tests swap in an in-memory database. */
+class AppContainer(context: Context, private val testDatabase: RecallDatabase? = null) {
     private val appContext = context.applicationContext
 
     val clock: Clock = Clock.systemDefaultZone()
 
-    val database: RecallDatabase by lazy { RecallDatabase.create(appContext) }
+    val database: RecallDatabase by lazy { testDatabase ?: RecallDatabase.create(appContext) }
 
     val settings: SettingsRepository by lazy { SettingsRepository(appContext.settingsStore) }
 
