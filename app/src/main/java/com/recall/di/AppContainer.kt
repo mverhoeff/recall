@@ -3,6 +3,7 @@ package com.recall.di
 import android.content.Context
 import androidx.datastore.preferences.preferencesDataStore
 import com.recall.data.db.RecallDatabase
+import com.recall.data.repo.BackupRepository
 import com.recall.data.repo.DeckRepository
 import com.recall.data.repo.StudyRepository
 import com.recall.data.settings.SettingsRepository
@@ -22,4 +23,6 @@ class AppContainer(context: Context) {
     val decks: DeckRepository by lazy { DeckRepository(database, settings, clock) }
 
     val study: StudyRepository by lazy { StudyRepository(database, clock) }
+
+    val backup: BackupRepository by lazy { BackupRepository(database, settings, clock) }
 }
