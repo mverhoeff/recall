@@ -145,6 +145,27 @@
         <item quantity="one">%d day</item>
         <item quantity="other">%d days</item>
     </plurals>
+    <string name="results_label">Round complete</string>
+    <string name="results_score">%1$d/%2$d</string>
+    <string name="results_score_description">%1$d of %2$d correct</string>
+    <string name="results_correct">correct</string>
+    <string name="results_perfect">Perfect round!</string>
+    <string name="results_nicely_done">Nicely done</string>
+    <string name="results_getting_there">Getting there</string>
+    <string name="results_keep_going">Keep going</string>
+    <string name="results_body_perfect">Every answer right. Keep the streak going.</string>
+    <plurals name="results_body">
+        <item quantity="one">You got %1$d of %2$d right. The one you missed is back in tomorrow\'s review.</item>
+        <item quantity="other">You got %1$d of %2$d right. The %3$d you missed are back in tomorrow\'s review.</item>
+    </plurals>
+    <string name="results_time">Time</string>
+    <string name="results_elapsed">%1$d:%2$02d</string>
+    <string name="results_streak">Streak</string>
+    <plurals name="results_streak_days">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
+    <string name="results_back">Back to deck</string>
     <string name="list_comma">%1$s, %2$s</string>
     <string name="list_and">%1$s and %2$s</string>
 

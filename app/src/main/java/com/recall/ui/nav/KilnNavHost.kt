@@ -18,6 +18,7 @@ import com.recall.ui.screens.PlaceholderScreen
 import com.recall.ui.screens.deck.CardListScreen
 import com.recall.ui.screens.deck.DeckDetailScreen
 import com.recall.ui.screens.editor.CardEditorScreen
+import com.recall.ui.screens.results.ResultsScreen
 import com.recall.ui.screens.study.StudyScreen
 import com.recall.ui.theme.Kiln
 
@@ -73,7 +74,13 @@ fun KilnNavHost(navController: NavHostController, modifier: Modifier = Modifier)
                 },
             )
         }
-        page<Results> { PlaceholderScreen("Results") }
+        page<Results> { entry ->
+            ResultsScreen(
+                sessionKey = entry.toRoute<Results>().sessionKey,
+                onBack = { navController.back(entry) },
+                onMissing = { navController.popBackStack<Home>(inclusive = false) },
+            )
+        }
         page<Import> { PlaceholderScreen("Import") }
     }
 }

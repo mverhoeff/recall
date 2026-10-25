@@ -209,7 +209,7 @@ fun DeckDetailScreen(
 }
 
 @Composable
-private fun StatTile(value: String, label: String, modifier: Modifier = Modifier) {
+internal fun StatTile(value: String, label: String, modifier: Modifier = Modifier) {
     KilnSurface(modifier, depth = Depth.Mold1, shape = RoundedCornerShape(18.dp)) {
         Column(
             Modifier
