@@ -3,4 +3,36 @@
     <string name="nav_library">Library</string>
     <string name="nav_progress">Progress</string>
     <string name="nav_settings">Settings</string>
+
+    <plurals name="card_count">
+        <item quantity="one">%d card</item>
+        <item quantity="other">%d cards</item>
+    </plurals>
+
+    <string name="library_search">Search</string>
+    <string name="library_close_search">Close search</string>
+    <string name="library_search_label">Search decks</string>
+    <string name="library_import">Import</string>
+    <string name="library_due_today">Due today</string>
+    <string name="library_all_done">All done</string>
+    <string name="library_nothing_due">Nothing due today. Practise a deck any time.</string>
+    <plurals name="library_from_decks">
+        <item quantity="one">From %d deck</item>
+        <item quantity="other">From %d decks</item>
+    </plurals>
+    <plurals name="library_minutes">
+        <item quantity="one">about %d minute</item>
+        <item quantity="other">about %d minutes</item>
+    </plurals>
+    <string name="library_hero_detail">%1$s · %2$s</string>
+    <string name="library_start_review">Start review</string>
+    <string name="library_streak">%d-day streak</string>
+    <string name="library_your_decks">Your decks</string>
+    <string name="library_sort_due">Due first ▾</string>
+    <string name="library_sort_az">A–Z ▾</string>
+    <string name="library_deck_known">%1$s · %2$d%% known</string>
+    <string name="library_deck_all_known">%1$s · all known</string>
+    <string name="library_badge_due">%d due</string>
+    <string name="library_up_to_date">Up to date</string>
+    <string name="library_new_deck">New deck</string>
 </resources>
