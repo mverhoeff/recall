@@ -41,11 +41,11 @@ import com.recall.RecallApp
 import com.recall.data.db.CardType
 import com.recall.ui.kiln.ButtonSize
 import com.recall.ui.kiln.ButtonVariant
+import com.recall.ui.kiln.KilnCheckbox
 import com.recall.ui.kiln.KilnButton
 import com.recall.ui.kiln.KilnDialog
 import com.recall.ui.kiln.KilnIconButton
 import com.recall.ui.kiln.KilnIcons
-import com.recall.ui.kiln.KilnRadio
 import com.recall.ui.kiln.KilnTabs
 import com.recall.ui.kiln.KilnText
 import com.recall.ui.kiln.KilnTextField
@@ -232,9 +232,9 @@ private fun Answers(draft: CardDraft, problem: Boolean, viewModel: CardEditorVie
         draft.options.forEachIndexed { index, option ->
             val correct = stringResource(R.string.editor_correct_answer, index + 1)
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                KilnRadio(
-                    selected = index == draft.correct,
-                    onClick = { viewModel.selectCorrect(index) },
+                KilnCheckbox(
+                    checked = index in draft.correct,
+                    onCheckedChange = { viewModel.toggleCorrect(index) },
                     modifier = Modifier.semantics { contentDescription = correct },
                 )
                 KilnTextField(

@@ -95,7 +95,7 @@
     <string name="editor_front">Front</string>
     <string name="editor_front_hint">Tip: add a hint after · , like poder · preterite · yo</string>
     <string name="editor_back">Back</string>
-    <string name="editor_answers">Answers · pick the correct one</string>
+    <string name="editor_answers">Answers · tick every correct one</string>
     <string name="editor_answer">Answer %d</string>
     <string name="editor_correct_answer">Answer %d is correct</string>
     <string name="editor_remove_answer">Remove answer %d</string>

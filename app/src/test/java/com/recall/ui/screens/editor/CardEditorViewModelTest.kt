@@ -88,12 +88,13 @@ class CardEditorViewModelTest {
     }
 
     @Test
-    fun changingTheCorrectRadioUpdatesTheAnswer() {
+    fun movingTheTickUpdatesTheAnswer() {
         val store = FakeStore()
         val viewModel = CardEditorViewModel(1, null, store)
         viewModel.setPrompt("I have")
         listOf("tiene", "tengo", "tienes").forEachIndexed(viewModel::setOption)
-        viewModel.selectCorrect(1)
+        viewModel.toggleCorrect(1)
+        viewModel.toggleCorrect(0)
         assertEquals("tengo", viewModel.current().draft.answer)
 
         viewModel.save {}
@@ -102,10 +103,55 @@ class CardEditorViewModelTest {
     }
 
     @Test
+    fun severalTickedAnswersAreAllSavedAsCorrect() {
+        val store = FakeStore()
+        val viewModel = CardEditorViewModel(1, null, store)
+        viewModel.setPrompt("Which builders start a coroutine?")
+        listOf("launch", "delay", "async").forEachIndexed(viewModel::setOption)
+        viewModel.toggleCorrect(2)
+        viewModel.save {}
+
+        val saved = store.added.single()
+        assertEquals("launch", saved.answer)
+        assertEquals(listOf("async"), saved.alsoCorrect)
+        assertEquals(listOf("delay"), saved.wrongAnswers)
+    }
+
+    @Test
+    fun theLastTickedAnswerCannotBeUnticked() {
+        val viewModel = CardEditorViewModel(1, null, FakeStore())
+        viewModel.toggleCorrect(0)
+
+        assertEquals(setOf(0), viewModel.current().draft.correct)
+    }
+
+    @Test
+    fun removingTheOnlyTickedRowTicksTheFirst() {
+        val viewModel = CardEditorViewModel(1, null, FakeStore())
+        listOf("a", "b", "c", "d").forEachIndexed(viewModel::setOption)
+        viewModel.toggleCorrect(3)
+        viewModel.toggleCorrect(0)
+        viewModel.removeOption(3)
+
+        assertEquals("a", viewModel.current().draft.answer)
+    }
+
+    @Test
+    fun editingACardWithSeveralCorrectAnswersTicksThemAll() {
+        val multi = existing.copy(answer = "launch", alsoCorrect = listOf("async"), wrongAnswers = listOf("delay"))
+        val viewModel = CardEditorViewModel(1, multi.id, FakeStore(multi))
+
+        val draft = viewModel.current().draft
+        assertEquals(listOf("launch", "async", "delay"), draft.options)
+        assertEquals(setOf(0, 1), draft.correct)
+    }
+
+    @Test
     fun removingARowAboveTheCorrectOneKeepsItSelected() {
         val viewModel = CardEditorViewModel(1, null, FakeStore())
         listOf("a", "b", "c", "d").forEachIndexed(viewModel::setOption)
-        viewModel.selectCorrect(2)
+        viewModel.toggleCorrect(2)
+        viewModel.toggleCorrect(0)
         viewModel.removeOption(0)
 
         assertEquals("c", viewModel.current().draft.answer)

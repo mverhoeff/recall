@@ -52,20 +52,28 @@ data class CardDraft(
     val type: CardType = CardType.MC,
     val prompt: String = "",
     val options: List<String> = List(NEW_OPTIONS) { "" },
-    val correct: Int = 0,
+    /** Indexes into [options]; never empty. */
+    val correct: Set<Int> = setOf(0),
     val truth: Boolean = true,
     val back: String = "",
     val explanation: String = "",
 ) {
+    private val correctOptions: List<String>
+        get() = options.filterIndexed { index, _ -> index in correct }
+
+    // A ticked row that is still blank shouldn't stand in for the answer when another ticked row has text.
     val answer: String
         get() = when (type) {
-            CardType.MC -> options.getOrElse(correct) { "" }
+            CardType.MC -> correctOptions.firstOrNull { it.isNotBlank() }.orEmpty()
             CardType.TF -> truth.toString()
             CardType.FLASH -> back
         }
 
+    val alsoCorrect: List<String>
+        get() = if (type == CardType.MC) correctOptions.filter { it.isNotBlank() }.drop(1) else emptyList()
+
     val wrong: List<String>
-        get() = if (type == CardType.MC) options.filterIndexed { index, _ -> index != correct } else emptyList()
+        get() = if (type == CardType.MC) options.filterIndexed { index, _ -> index !in correct } else emptyList()
 }
 
 enum class DraftProblem { PROMPT, ANSWERS, BACK }
@@ -111,7 +119,14 @@ class CardEditorViewModel(
         draft.copy(options = draft.options.mapIndexed { i, old -> if (i == index) text else old })
     }
 
-    fun selectCorrect(index: Int) = edit { it.copy(correct = index) }
+    /** Ticks or unticks an answer as correct; the last ticked one stays, as a choice card needs one. */
+    fun toggleCorrect(index: Int) = edit { draft ->
+        when {
+            index !in draft.correct -> draft.copy(correct = draft.correct + index)
+            draft.correct.size > 1 -> draft.copy(correct = draft.correct - index)
+            else -> draft
+        }
+    }
 
     fun addOption() = edit { draft ->
         if (draft.options.size >= MAX_OPTIONS) draft else draft.copy(options = draft.options + "")
@@ -119,12 +134,8 @@ class CardEditorViewModel(
 
     fun removeOption(index: Int) = edit { draft ->
         if (draft.options.size <= MIN_OPTIONS) return@edit draft
-        val correct = when {
-            index < draft.correct -> draft.correct - 1
-            index == draft.correct -> 0
-            else -> draft.correct
-        }
-        draft.copy(options = draft.options.filterIndexed { i, _ -> i != index }, correct = correct)
+        val correct = draft.correct.filter { it != index }.map { if (it > index) it - 1 else it }.toSet()
+        draft.copy(options = draft.options.filterIndexed { i, _ -> i != index }, correct = correct.ifEmpty { setOf(0) })
     }
 
     fun setTruth(truth: Boolean) = edit { it.copy(truth = truth) }
@@ -156,6 +167,7 @@ class CardEditorViewModel(
                         prompt = card.prompt,
                         answer = card.answer,
                         wrongAnswers = card.wrong,
+                        alsoCorrect = card.alsoCorrect,
                         explanation = card.explanation,
                         position = 0,
                         createdAt = 0,
@@ -169,6 +181,7 @@ class CardEditorViewModel(
                         prompt = card.prompt,
                         answer = card.answer,
                         wrongAnswers = card.wrong,
+                        alsoCorrect = card.alsoCorrect,
                         explanation = card.explanation,
                     ),
                 )
@@ -205,12 +218,13 @@ class CardEditorViewModel(
     }
 }
 
-/** An existing card as a draft. Its correct answer goes first, then the wrong ones in their order. */
+/** An existing card as a draft. Its correct answers go first, then the wrong ones in their order. */
 internal fun draftOf(card: Card): CardDraft = when (card.type) {
     CardType.MC -> CardDraft(
         type = card.type,
         prompt = card.prompt,
-        options = (listOf(card.answer) + card.wrongAnswers).let { it + List(maxOf(0, MIN_OPTIONS - it.size)) { "" } },
+        options = (listOf(card.answer) + card.alsoCorrect + card.wrongAnswers).let { it + List(maxOf(0, MIN_OPTIONS - it.size)) { "" } },
+        correct = (0..card.alsoCorrect.size).toSet(),
         explanation = card.explanation,
     )
     CardType.TF -> CardDraft(card.type, card.prompt, truth = card.answer == "true", explanation = card.explanation)
@@ -229,7 +243,7 @@ private fun validate(draft: CardDraft): Validated {
         CardType.TF -> "tf"
         CardType.FLASH -> "card"
     }
-    val raw = RawCard(type, draft.prompt, draft.answer, draft.wrong, draft.explanation)
+    val raw = RawCard(type, draft.prompt, draft.answer, draft.wrong, draft.explanation, draft.alsoCorrect)
     val parsed: ParsedFile.Deck = ImportValidator.fromJson(null, listOf(raw))
     parsed.cards.firstOrNull()?.let { return Validated.Good(it) }
     return Validated.Bad(problemFor(withoutPlace(parsed.issues.first().message)))
