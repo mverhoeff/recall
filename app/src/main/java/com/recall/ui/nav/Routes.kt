@@ -2,18 +2,9 @@ package com.recall.ui.nav
 
 import kotlinx.serialization.Serializable
 
-/** The three tabs with their bar; [Library], [Progress] and [Settings] live inside it. */
+/** The three tabs (Library, Progress and Settings) with their bar. */
 @Serializable
 data object Home
-
-@Serializable
-data object Library
-
-@Serializable
-data object Progress
-
-@Serializable
-data object Settings
 
 @Serializable
 data class DeckDetail(val deckId: Long)

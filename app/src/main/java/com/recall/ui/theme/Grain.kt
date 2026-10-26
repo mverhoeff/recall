@@ -138,12 +138,13 @@ half4 main(float2 p) {
 """
 
 // Accumulates what nested scrollables actually moved, so the grain travels with the content
-// as if it were printed on it.
+// as if it were printed on it. Only vertical scrolling counts: pages and tabs slide sideways
+// without moving it, whether by a swipe or a tap.
 private class GrainScroll : NestedScrollConnection {
     var offset by mutableStateOf(Offset.Zero)
 
     override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
-        offset += consumed
+        offset += Offset(0f, consumed.y)
         return Offset.Zero
     }
 }
