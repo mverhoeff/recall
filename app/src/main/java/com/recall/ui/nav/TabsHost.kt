@@ -34,6 +34,7 @@ import com.recall.ui.kiln.KilnBottomBar
 import com.recall.ui.kiln.KilnIcons
 import com.recall.ui.screens.PlaceholderScreen
 import com.recall.ui.screens.library.LibraryScreen
+import com.recall.ui.screens.settings.SettingsScreen
 import com.recall.ui.theme.Kiln
 
 // The old tab clears before the new one fades in, so the two never show through each other.
@@ -76,7 +77,7 @@ fun TabsHost(app: NavHostController) {
                     )
                 }
                 page<Progress> { PlaceholderScreen(stringResource(R.string.nav_progress)) }
-                page<Settings> { PlaceholderScreen(stringResource(R.string.nav_settings)) }
+                page<Settings> { SettingsScreen(onImport = { app.navigate(Import()) }) }
             }
         }
         TabBar(tabs, Modifier.align(Alignment.BottomCenter))
