@@ -71,8 +71,8 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-// The floating bottom bar: 60dp items, 8dp padding and its 20dp margin.
-private val BottomBarSpace = 96.dp
+// The floating bottom bar: 52dp items, 6dp padding and its 20dp margin.
+private val BottomBarSpace = 84.dp
 
 // The UI is English, so the date is too, whatever the phone's language.
 private val HeaderDate = DateTimeFormatter.ofPattern("EEEE, d MMMM", Locale.ENGLISH)

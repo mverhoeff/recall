@@ -49,7 +49,7 @@ fun KilnBottomBar(
     ) {
         Row(
             Modifier
-                .padding(8.dp)
+                .padding(6.dp)
                 .selectableGroup(),
         ) {
             items.forEachIndexed { index, item ->
@@ -89,7 +89,7 @@ private fun BarItem(item: BottomBarItem, selected: Boolean, onClick: () -> Unit,
                 role = Role.Tab,
                 onClick = onClick,
             )
-            .height(60.dp),
+            .height(52.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
