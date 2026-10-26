@@ -93,7 +93,7 @@
     <string name="editor_question">Question</string>
     <string name="editor_statement">Statement</string>
     <string name="editor_front">Front</string>
-    <string name="editor_front_hint">Tip: add a hint after · , like poder · preterite · yo</string>
+    <string name="editor_front_hint">Tip: add a hint after · , like Japan · capital</string>
     <string name="editor_back">Back</string>
     <string name="editor_answers">Answers · tick every correct one</string>
     <string name="editor_answer">Answer %d</string>
@@ -247,9 +247,9 @@
     <string name="help_col_explanation_desc">Shown after answering</string>
     <string name="help_examples">Examples</string>
     <string name="help_example_header">type,prompt,answer,wrong1,wrong2</string>
-    <string name="help_example_mc">mc,¿Yo ___ hambre?,tengo,tiene,tienes</string>
-    <string name="help_example_tf">tf,Estar is for permanent traits.,false</string>
-    <string name="help_example_card">card,poder · preterite · yo,pude</string>
+    <string name="help_example_mc">mc,Capital of Australia?,Canberra,Sydney,Melbourne</string>
+    <string name="help_example_tf">tf,Rome is the capital of Italy.,true</string>
+    <string name="help_example_card">card,Japan · capital,Tokyo</string>
     <string name="help_json">Decks exported from Recall and Recall backups import as they are.</string>
 
     <string name="settings_title">Settings</string>
