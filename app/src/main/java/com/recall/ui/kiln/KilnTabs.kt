@@ -30,6 +30,8 @@ import com.recall.ui.theme.kilnDepth
 import kotlinx.coroutines.launch
 
 private val TabGap = 4.dp
+private val PillHeight = 44.dp
+private val TouchHeight = 48.dp
 
 /**
  * Segmented tabs. The track is flat in every context, so it looks the same on the ground and in cards.
@@ -59,16 +61,17 @@ fun KilnTabs(
         modifier
             .fillMaxWidth()
             .kilnDepth(Depth.Flat, CircleShape, colors.line, colors)
-            .padding(5.dp),
+            // Tabs take touches over 48dp but draw a 44dp pill, so they reach 2dp into the track's padding.
+            .padding(horizontal = 5.dp, vertical = 5.dp - (TouchHeight - PillHeight) / 2),
     ) {
         val step = (maxWidth - TabGap * (items.size - 1)) / items.size + TabGap
         val left = step * start.value
         val right = step * end.value - TabGap
         Box(
             Modifier
-                .offset(x = left)
+                .offset(x = left, y = (TouchHeight - PillHeight) / 2)
                 .width(right - left)
-                .height(44.dp)
+                .height(PillHeight)
                 .kilnDepth(Depth.Float1, CircleShape, colors.surface2, colors),
         )
         Row(Modifier.selectableGroup(), horizontalArrangement = Arrangement.spacedBy(TabGap)) {
@@ -78,7 +81,7 @@ fun KilnTabs(
                 Box(
                     Modifier
                         .weight(1f)
-                        .height(44.dp)
+                        .height(TouchHeight)
                         .selectable(
                             selected = index == selectedIndex,
                             interactionSource = remember { MutableInteractionSource() },
