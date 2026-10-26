@@ -176,6 +176,29 @@
     <string name="list_comma">%1$s, %2$s</string>
     <string name="list_and">%1$s and %2$s</string>
 
+    <string name="import_title">Import deck</string>
+    <string name="import_choose_prompt">Choose a CSV or JSON file</string>
+    <string name="import_choose">Choose file</string>
+    <string name="import_change">Change</string>
+    <string name="import_caption_csv">CSV · header row found · %s</string>
+    <string name="import_caption_json">JSON · %s</string>
+    <string name="import_size_kb">%d KB</string>
+    <string name="import_size_mb">%.1f MB</string>
+    <string name="import_nothing">Nothing to import</string>
+    <string name="import_row">Row %d</string>
+    <string name="import_card">Card %d</string>
+    <string name="import_error_type">%1$s: type \"%2$s\" isn\'t known. Use mc, tf or card.</string>
+    <string name="import_error_prompt">%s: the prompt is empty.</string>
+    <string name="import_error_answers">%s: a choice card needs at least 2 answers.</string>
+    <string name="import_error_truth">%s: true/false cards need true or false as the answer.</string>
+    <string name="import_error_back">%s: the back of the card is empty.</string>
+    <string name="import_error_header">This file needs a header row with type, prompt and answer.</string>
+    <string name="import_error_size">This file is larger than 5 MB.</string>
+    <string name="import_error_utf8">This file isn\'t UTF-8 text.</string>
+    <string name="import_error_not_deck">This file isn\'t a Recall deck.</string>
+    <string name="import_error_newer">This file was made by a newer version of Recall.</string>
+    <string name="import_error_unreadable">This file couldn\'t be opened.</string>
+
     <string name="action_back">Back</string>
     <string name="action_close">Close</string>
     <string name="action_cancel">Cancel</string>

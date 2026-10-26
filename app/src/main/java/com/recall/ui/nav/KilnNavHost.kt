@@ -15,10 +15,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.recall.data.db.StudyMode
 import com.recall.ui.kiln.RiseEntrance
-import com.recall.ui.screens.PlaceholderScreen
 import com.recall.ui.screens.deck.CardListScreen
 import com.recall.ui.screens.deck.DeckDetailScreen
 import com.recall.ui.screens.editor.CardEditorScreen
+import com.recall.ui.screens.importer.ImportScreen
 import com.recall.ui.screens.results.ResultsScreen
 import com.recall.ui.screens.study.StudyScreen
 import com.recall.ui.theme.Kiln
@@ -91,7 +91,7 @@ fun KilnNavHost(navController: NavHostController, modifier: Modifier = Modifier)
                 onMissing = { navController.popBackStack<Home>(inclusive = false) },
             )
         }
-        page<Import> { PlaceholderScreen("Import") }
+        page<Import> { entry -> ImportScreen(onBack = { navController.back(entry) }) }
     }
 }
 
