@@ -68,6 +68,9 @@ fun TabsHost(app: NavHostController) {
                 exitTransition = { fadeOut(motion.fast()) },
                 popEnterTransition = { fadeIn(motion.base(delay = THROUGH_DELAY_MS)) },
                 popExitTransition = { fadeOut(motion.fast()) },
+                // The back gesture fades through the same way instead of Navigation's default shrink and fade.
+                predictivePopEnterTransition = { fadeIn(motion.base(delay = THROUGH_DELAY_MS)) },
+                predictivePopExitTransition = { fadeOut(motion.fast()) },
             ) {
                 page<Library> {
                     LibraryScreen(
