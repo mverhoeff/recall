@@ -26,7 +26,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,17 +50,21 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.recall.BuildConfig
 import com.recall.R
 import com.recall.RecallApp
+import com.recall.data.settings.AppSettings
 import com.recall.data.settings.ThemeMode
 import com.recall.ui.kiln.KilnIcon
+import com.recall.ui.kiln.KilnIconButton
 import com.recall.ui.kiln.KilnIcons
 import com.recall.ui.kiln.KilnSurface
 import com.recall.ui.kiln.KilnTabs
 import com.recall.ui.kiln.KilnText
+import com.recall.ui.kiln.KilnToggle
 import com.recall.ui.kiln.arrival
 import com.recall.ui.kiln.kilnFocusRing
 import com.recall.ui.kiln.kilnPressable
 import com.recall.ui.kiln.neutralFill
 import com.recall.ui.kiln.rememberPressState
+import com.recall.ui.nav.AboveBar
 import com.recall.ui.nav.BottomBarSpace
 import com.recall.ui.theme.ClayBody
 import com.recall.ui.theme.Depth
@@ -79,6 +86,7 @@ fun SettingsScreen(onImport: () -> Unit) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val arrival = Modifier.arrival(state != null)
     val settings = state ?: return
+    var pickingTime by rememberSaveable { mutableStateOf(false) }
 
     val safe = WindowInsets.safeDrawing.asPaddingValues()
     val navBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
@@ -120,6 +128,8 @@ fun SettingsScreen(onImport: () -> Unit) {
                 }
             }
 
+            PreferencesPanel(settings, viewModel, onPickTime = { pickingTime = true })
+
             SectionLabel(stringResource(R.string.settings_your_data))
             DataRow(
                 stringResource(R.string.settings_import),
@@ -135,6 +145,79 @@ fun SettingsScreen(onImport: () -> Unit) {
                 style = Kiln.type.caption,
                 color = Kiln.colors.ink2,
                 textAlign = TextAlign.Center,
+            )
+        }
+    }
+    AboveBar {
+        ReminderTimeSheet(
+            visible = pickingTime,
+            hour = settings.reminderHour,
+            minute = settings.reminderMinute,
+            onChangeHour = viewModel::changeReminderHour,
+            onSelectMinute = viewModel::setReminderMinute,
+            onDismiss = { pickingTime = false },
+            modifier = Modifier.align(Alignment.BottomCenter),
+        )
+    }
+}
+
+@Composable
+private fun PreferencesPanel(settings: AppSettings, viewModel: SettingsViewModel, onPickTime: () -> Unit) {
+    KilnSurface(Modifier.fillMaxWidth(), depth = Depth.Mold2, shape = RoundedCornerShape(26.dp)) {
+        Column(Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    KilnText(stringResource(R.string.settings_new_per_day), style = RowLabel)
+                    KilnText(stringResource(R.string.settings_new_per_day_sub), style = Kiln.type.caption, color = Kiln.colors.ink2)
+                }
+                KilnIconButton(
+                    KilnIcons.minus,
+                    stringResource(R.string.settings_fewer),
+                    { viewModel.changeNewPerDay(-NEW_PER_DAY_STEP) },
+                    enabled = settings.newPerDay > 0,
+                )
+                KilnText(
+                    settings.newPerDay.toString(),
+                    Modifier.widthIn(min = 36.dp),
+                    style = Kiln.type.h3,
+                    textAlign = TextAlign.Center,
+                )
+                KilnIconButton(
+                    KilnIcons.plus,
+                    stringResource(R.string.settings_more),
+                    { viewModel.changeNewPerDay(NEW_PER_DAY_STEP) },
+                    enabled = settings.newPerDay < NEW_PER_DAY_MAX,
+                )
+            }
+            Hairline()
+            KilnToggle(
+                checked = settings.reminderEnabled,
+                onCheckedChange = viewModel::setReminderEnabled,
+                label = stringResource(R.string.settings_reminder),
+                modifier = Modifier.padding(vertical = 12.dp),
+                sublabel = stringResource(R.string.settings_reminder_sub, settings.reminderHour, settings.reminderMinute),
+                onSublabelClick = onPickTime,
+            )
+            Hairline()
+            KilnToggle(
+                checked = settings.haptics,
+                onCheckedChange = viewModel::setHaptics,
+                label = stringResource(R.string.settings_haptics),
+                modifier = Modifier.padding(vertical = 12.dp),
+            )
+            Hairline()
+            KilnToggle(
+                checked = settings.reduceMotion,
+                onCheckedChange = viewModel::setReduceMotion,
+                label = stringResource(R.string.settings_reduce_motion),
+                modifier = Modifier.padding(vertical = 12.dp),
+                sublabel = stringResource(R.string.settings_reduce_motion_sub),
             )
         }
     }
@@ -245,6 +328,19 @@ private fun DataRow(title: String, caption: String, onClick: () -> Unit, modifie
 private fun SectionLabel(text: String) {
     KilnText(text, Modifier.padding(top = 8.dp), style = Kiln.type.label, color = Kiln.colors.ink2, uppercase = true)
 }
+
+@Composable
+private fun Hairline() {
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .height(1.dp)
+            .background(Kiln.colors.line),
+    )
+}
+
+private val RowLabel
+    @Composable get() = Kiln.type.body.copy(fontSize = 15.sp, fontWeight = FontWeight.SemiBold, lineHeight = 20.sp)
 
 private val OptionLabel
     @Composable get() = Kiln.type.body.copy(fontSize = 13.sp, fontWeight = FontWeight.Bold, lineHeight = 16.sp)
