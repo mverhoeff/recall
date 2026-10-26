@@ -65,14 +65,13 @@ import com.recall.ui.kiln.TileSize
 import com.recall.ui.kiln.TileTone
 import com.recall.ui.kiln.arrival
 import com.recall.ui.kiln.rise
+import com.recall.ui.nav.BottomBarSpace
 import com.recall.ui.theme.Depth
 import com.recall.ui.theme.Kiln
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-// The floating bottom bar: 52dp items, 6dp padding and its 20dp margin.
-private val BottomBarSpace = 84.dp
 
 // The UI is English, so the date is too, whatever the phone's language.
 private val HeaderDate = DateTimeFormatter.ofPattern("EEEE, d MMMM", Locale.ENGLISH)
