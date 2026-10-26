@@ -263,6 +263,8 @@
     <string name="settings_reduce_motion">Reduce motion</string>
     <string name="settings_reduce_motion_sub">Also on when Android removes animations</string>
     <string name="settings_your_data">Your data</string>
+    <string name="settings_backup">Back up all decks</string>
+    <string name="settings_backup_sub">One JSON file, with progress</string>
     <string name="settings_import">Import or restore</string>
     <string name="settings_import_sub">CSV deck or JSON backup</string>
     <string name="settings_footer">Recall %s · everything stays on this phone</string>

@@ -1,5 +1,7 @@
 package com.recall.ui.screens.settings
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -75,18 +77,24 @@ import com.recall.ui.theme.TypePairing
 import com.recall.ui.theme.kilnDepth
 import com.recall.ui.theme.kilnTypography
 import com.recall.ui.theme.resolve
+import java.time.Clock
+import java.time.LocalDate
 
 private val Modes = listOf(ThemeMode.SYSTEM, ThemeMode.LIGHT, ThemeMode.DARK)
 private val OptionShape = RoundedCornerShape(18.dp)
 
 @Composable
 fun SettingsScreen(onImport: () -> Unit) {
-    val container = (LocalContext.current.applicationContext as RecallApp).container
-    val viewModel = viewModel { SettingsViewModel(container.settings) }
+    val context = LocalContext.current
+    val container = (context.applicationContext as RecallApp).container
+    val viewModel = viewModel { SettingsViewModel(container.settings, container.backup) }
     val state by viewModel.state.collectAsStateWithLifecycle()
     val arrival = Modifier.arrival(state != null)
     val settings = state ?: return
     var pickingTime by rememberSaveable { mutableStateOf(false) }
+    val backupPicker = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+        if (uri != null) viewModel.backUp(context.contentResolver, uri)
+    }
 
     val safe = WindowInsets.safeDrawing.asPaddingValues()
     val navBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
@@ -131,6 +139,11 @@ fun SettingsScreen(onImport: () -> Unit) {
             PreferencesPanel(settings, viewModel, onPickTime = { pickingTime = true })
 
             SectionLabel(stringResource(R.string.settings_your_data))
+            DataRow(
+                stringResource(R.string.settings_backup),
+                stringResource(R.string.settings_backup_sub),
+                onClick = { backupPicker.launch(backupFileName(container.clock)) },
+            )
             DataRow(
                 stringResource(R.string.settings_import),
                 stringResource(R.string.settings_import_sub),
@@ -344,6 +357,9 @@ private val RowLabel
 
 private val OptionLabel
     @Composable get() = Kiln.type.body.copy(fontSize = 13.sp, fontWeight = FontWeight.Bold, lineHeight = 16.sp)
+
+/** `recall-backup-2026-10-23.json`, dated by the phone's own day. */
+private fun backupFileName(clock: Clock): String = "recall-backup-${LocalDate.now(clock)}.json"
 
 private fun paletteName(palette: ClayBody): Int = when (palette) {
     ClayBody.SLATE -> R.string.palette_slate

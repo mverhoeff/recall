@@ -1,17 +1,23 @@
 package com.recall.ui.screens.settings
 
+import android.content.ContentResolver
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.recall.data.repo.BackupRepository
 import com.recall.data.settings.AppSettings
 import com.recall.data.settings.SettingsRepository
 import com.recall.data.settings.ThemeMode
 import com.recall.ui.theme.ClayBody
 import com.recall.ui.theme.TypePairing
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.IOException
 
 const val NEW_PER_DAY_STEP = 5
 const val NEW_PER_DAY_MAX = 100
@@ -22,6 +28,7 @@ const val NEW_PER_DAY_MAX = 100
  */
 class SettingsViewModel(
     private val settings: SettingsRepository,
+    private val backups: BackupRepository,
     private val onReminderChanged: (AppSettings) -> Unit = {},
 ) : ViewModel() {
     val state: StateFlow<AppSettings?> = settings.settings.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
@@ -50,6 +57,20 @@ class SettingsViewModel(
     }
 
     fun setReminderMinute(minute: Int) = writeReminder { setReminderMinute(minute) }
+
+    fun backUp(resolver: ContentResolver, uri: Uri) {
+        viewModelScope.launch {
+            val text = backups.export()
+            withContext(Dispatchers.IO) {
+                // The picker can hand back a location that refuses writes; there is nothing to recover then.
+                try {
+                    resolver.openOutputStream(uri, "wt")?.use { it.write(text.toByteArray()) }
+                } catch (_: IOException) {
+                } catch (_: SecurityException) {
+                }
+            }
+        }
+    }
 
     private fun write(change: suspend SettingsRepository.() -> Unit) {
         viewModelScope.launch { settings.change() }
