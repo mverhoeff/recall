@@ -4,6 +4,7 @@ import android.content.ContentResolver
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.recall.data.db.RecallDatabase
 import com.recall.data.repo.BackupRepository
 import com.recall.data.settings.AppSettings
 import com.recall.data.settings.SettingsRepository
@@ -29,6 +30,7 @@ const val NEW_PER_DAY_MAX = 100
 class SettingsViewModel(
     private val settings: SettingsRepository,
     private val backups: BackupRepository,
+    private val database: RecallDatabase,
     private val onReminderChanged: (AppSettings) -> Unit = {},
 ) : ViewModel() {
     val state: StateFlow<AppSettings?> = settings.settings.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
@@ -69,6 +71,17 @@ class SettingsViewModel(
                 } catch (_: SecurityException) {
                 }
             }
+        }
+    }
+
+    /** Removes every deck, card, review and setting; [onDeleted] runs once they are gone. */
+    fun deleteEverything(onDeleted: () -> Unit) {
+        viewModelScope.launch {
+            // Cards, their states and their logs go with the decks.
+            database.deckDao().deleteAll()
+            settings.clear()
+            onReminderChanged(settings.settings.first())
+            onDeleted()
         }
     }
 

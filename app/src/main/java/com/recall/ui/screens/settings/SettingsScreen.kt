@@ -54,6 +54,9 @@ import com.recall.R
 import com.recall.RecallApp
 import com.recall.data.settings.AppSettings
 import com.recall.data.settings.ThemeMode
+import com.recall.ui.kiln.ButtonVariant
+import com.recall.ui.kiln.KilnButton
+import com.recall.ui.kiln.KilnDialog
 import com.recall.ui.kiln.KilnIcon
 import com.recall.ui.kiln.KilnIconButton
 import com.recall.ui.kiln.KilnIcons
@@ -84,14 +87,15 @@ private val Modes = listOf(ThemeMode.SYSTEM, ThemeMode.LIGHT, ThemeMode.DARK)
 private val OptionShape = RoundedCornerShape(18.dp)
 
 @Composable
-fun SettingsScreen(onImport: () -> Unit) {
+fun SettingsScreen(onImport: () -> Unit, onDeletedAll: () -> Unit) {
     val context = LocalContext.current
     val container = (context.applicationContext as RecallApp).container
-    val viewModel = viewModel { SettingsViewModel(container.settings, container.backup) }
+    val viewModel = viewModel { SettingsViewModel(container.settings, container.backup, container.database) }
     val state by viewModel.state.collectAsStateWithLifecycle()
     val arrival = Modifier.arrival(state != null)
     val settings = state ?: return
     var pickingTime by rememberSaveable { mutableStateOf(false) }
+    var deleting by rememberSaveable { mutableStateOf(false) }
     val backupPicker = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
         if (uri != null) viewModel.backUp(context.contentResolver, uri)
     }
@@ -149,6 +153,13 @@ fun SettingsScreen(onImport: () -> Unit) {
                 stringResource(R.string.settings_import_sub),
                 onClick = onImport,
             )
+            KilnButton(
+                stringResource(R.string.settings_delete_all),
+                { deleting = true },
+                Modifier.align(Alignment.CenterHorizontally),
+                variant = ButtonVariant.Ghost,
+                contentColor = Kiln.colors.err,
+            )
 
             KilnText(
                 stringResource(R.string.settings_footer, BuildConfig.VERSION_NAME),
@@ -160,6 +171,20 @@ fun SettingsScreen(onImport: () -> Unit) {
                 textAlign = TextAlign.Center,
             )
         }
+    }
+    if (deleting) {
+        KilnDialog(
+            title = stringResource(R.string.settings_delete_title),
+            body = stringResource(R.string.settings_delete_body),
+            confirmText = stringResource(R.string.action_delete),
+            onConfirm = {
+                deleting = false
+                viewModel.deleteEverything(onDeletedAll)
+            },
+            dismissText = stringResource(R.string.action_cancel),
+            onDismiss = { deleting = false },
+            destructive = true,
+        )
     }
     AboveBar {
         ReminderTimeSheet(

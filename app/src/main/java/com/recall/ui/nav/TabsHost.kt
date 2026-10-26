@@ -77,7 +77,12 @@ fun TabsHost(app: NavHostController) {
                     )
                 }
                 page<Progress> { PlaceholderScreen(stringResource(R.string.nav_progress)) }
-                page<Settings> { SettingsScreen(onImport = { app.navigate(Import()) }) }
+                page<Settings> {
+                    SettingsScreen(
+                        onImport = { app.navigate(Import()) },
+                        onDeletedAll = { tabs.popBackStack(Library, inclusive = false) },
+                    )
+                }
             }
         }
         TabBar(tabs, Modifier.align(Alignment.BottomCenter))

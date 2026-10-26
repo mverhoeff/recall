@@ -51,6 +51,8 @@ fun KilnButton(
     trailingIcon: ImageVector? = null,
     restDepth: Depth? = null,
     horizontalPadding: Dp = size.padding,
+    /** Overrides the variant's text and icon colour, e.g. for a Ghost button that deletes. */
+    contentColor: Color? = null,
 ) {
     val style = when (size) {
         ButtonSize.Sm -> Kiln.type.buttonSm
@@ -58,9 +60,11 @@ fun KilnButton(
         ButtonSize.Lg -> Kiln.type.buttonLg
     }
     ButtonFrame(onClick, modifier, variant, size, enabled, pressed, horizontalPadding, restDepth) {
-        if (leadingIcon != null) KilnIcon(leadingIcon, contentDescription = null, size = 22.dp)
-        KilnText(text, style = style, maxLines = 1)
-        if (trailingIcon != null) KilnIcon(trailingIcon, contentDescription = null, size = 22.dp)
+        CompositionLocalProvider(LocalContentColor provides (contentColor ?: LocalContentColor.current)) {
+            if (leadingIcon != null) KilnIcon(leadingIcon, contentDescription = null, size = 22.dp)
+            KilnText(text, style = style, maxLines = 1)
+            if (trailingIcon != null) KilnIcon(trailingIcon, contentDescription = null, size = 22.dp)
+        }
     }
 }
 
