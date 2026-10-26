@@ -1,6 +1,7 @@
 package com.recall.ui.kiln
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
@@ -17,8 +19,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.recall.ui.theme.ClayEasing
@@ -34,6 +38,7 @@ fun KilnToggle(
     label: String,
     modifier: Modifier = Modifier,
     sublabel: String? = null,
+    onSublabelClick: (() -> Unit)? = null,
 ) {
     val colors = Kiln.colors
     val onGround = LocalOnGround.current
@@ -60,7 +65,24 @@ fun KilnToggle(
                 label,
                 style = Kiln.type.body.copy(fontSize = 15.sp, fontWeight = FontWeight.SemiBold, lineHeight = 20.sp),
             )
-            if (sublabel != null) KilnText(sublabel, style = Kiln.type.caption, color = colors.ink2)
+            if (sublabel != null && onSublabelClick != null) {
+                KilnText(
+                    sublabel,
+                    Modifier
+                        .touchReach(above = SublabelReachUp, below = SublabelReachDown)
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                            role = Role.Button,
+                            onClick = onSublabelClick,
+                        )
+                        .padding(top = SublabelReachUp, bottom = SublabelReachDown),
+                    style = Kiln.type.caption,
+                    color = colors.accent,
+                )
+            } else if (sublabel != null) {
+                KilnText(sublabel, style = Kiln.type.caption, color = colors.ink2)
+            }
         }
         Box(
             Modifier
@@ -81,4 +103,16 @@ fun KilnToggle(
             )
         }
     }
+}
+
+// A caption line is about 18dp tall. Reaching mostly downwards takes a full 48dp of touches without
+// covering the label above, which still toggles the switch.
+private val SublabelReachUp = 6.dp
+private val SublabelReachDown = 24.dp
+
+/** Lays the content out smaller than it measures, so its padding overlaps its neighbours. */
+private fun Modifier.touchReach(above: Dp, below: Dp) = layout { measurable, constraints ->
+    val placeable = measurable.measure(constraints)
+    val top = above.roundToPx()
+    layout(placeable.width, (placeable.height - top - below.roundToPx()).coerceAtLeast(0)) { placeable.place(0, -top) }
 }
