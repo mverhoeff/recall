@@ -1,0 +1,59 @@
+{
+  "format": "recall-deck",
+  "version": 1,
+  "deck": {
+    "name": "Spanish verbs — A2",
+    "description": "Present and preterite forms of common verbs."
+  },
+  "cards": [
+    {
+      "type": "mc",
+      "prompt": "¿Yo ___ hambre? (tener, present)",
+      "answer": "tengo",
+      "wrong": ["teno", "tiene", "tienes"],
+      "explanation": "Tener is irregular in the yo form."
+    },
+    {
+      "type": "mc",
+      "prompt": "Which verbs share their preterite forms?",
+      "answer": "ir",
+      "alsoCorrect": ["ser"],
+      "wrong": ["hablar", "comer"],
+      "explanation": "Fui, fuiste, fue… means both \"I went\" and \"I was\"."
+    },
+    {
+      "type": "mc",
+      "prompt": "¿Dónde ___ la biblioteca?",
+      "answer": "está",
+      "wrong": ["es", "son", "hay"],
+      "explanation": "Location takes estar."
+    },
+    {
+      "type": "tf",
+      "prompt": "Estar is used for permanent traits.",
+      "answer": "false",
+      "explanation": "Permanent traits take ser; states and locations take estar."
+    },
+    {
+      "type": "tf",
+      "prompt": "Tener is regular in the preterite.",
+      "answer": "maybe"
+    },
+    {
+      "type": "card",
+      "prompt": "poder · preterite · yo",
+      "answer": "pude"
+    },
+    {
+      "type": "card",
+      "prompt": "tener · preterite · yo",
+      "answer": "tuve"
+    },
+    {
+      "type": "card",
+      "prompt": "hacer · preterite · él",
+      "answer": "hizo",
+      "explanation": "The c turns into z to keep the sound."
+    }
+  ]
+}

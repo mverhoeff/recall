@@ -1,0 +1,15 @@
+type;prompt;answer;answer2;wrong1;wrong2;wrong3;explanation
+mc;¿Yo ___ hambre? (tener, present);tengo;;teno;tiene;tienes;Tener is irregular in the yo form.
+mc;Which verbs share their preterite forms?;ir;ser;hablar;comer;;"Fui, fuiste, fue… means both ""I went"" and ""I was""."
+mc;¿Dónde ___ la biblioteca?;está;;es;son;hay;Location takes estar.
+mc;Nosotros ___ español. (hablar, present);hablamos;;hablan;habláis;habla;
+tf;"""Fui"" can mean both ""I went"" and ""I was"".";true;;;;;
+tf;Estar is used for permanent traits.;false;;;;;"Permanent traits take ser; states and locations take estar.
+Example: está cansado."
+tf;Tener is regular in the preterite.;no;;;;;Its preterite stem is tuv-: tuve, tuviste, tuvo.
+card;poder · preterite · yo;pude;;;;;
+card;tener · preterite · yo;tuve;;;;;
+mc;¿Ellos ___ al cine ayer? (ir);fueron;;;;;
+mcq;decir · preterite · yo;dije;;diji;decí;;
+card;hacer · preterite · él;hizo;;;;;The c turns into z to keep the sound.
+card;decir · preterite · nosotros;dijimos;;;;;
