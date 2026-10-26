@@ -213,6 +213,22 @@
     <string name="import_error_not_deck">This file isn\'t a Recall deck.</string>
     <string name="import_error_newer">This file was made by a newer version of Recall.</string>
     <string name="import_error_unreadable">This file couldn\'t be opened.</string>
+    <string name="import_existing_deck">Existing deck</string>
+    <plurals name="import_button">
+        <item quantity="one">Import %d card</item>
+        <item quantity="other">Import %d cards</item>
+    </plurals>
+    <string name="backup_from">Backup from %s</string>
+    <plurals name="deck_count">
+        <item quantity="one">%d deck</item>
+        <item quantity="other">%d decks</item>
+    </plurals>
+    <string name="backup_caption">%1$s · %2$s</string>
+    <string name="backup_warning">Restoring replaces everything on this phone.</string>
+    <string name="backup_restore">Restore backup</string>
+    <string name="backup_confirm_title">Restore this backup?</string>
+    <string name="backup_confirm_body">All decks, cards, progress and settings on this phone will be replaced by the ones in the backup.</string>
+    <string name="backup_confirm">Restore</string>
     <string name="help_title">CSV files</string>
     <string name="help_body">The first row names the columns, in any order. type, prompt and answer are needed; the rest are optional.</string>
     <string name="help_header">type, prompt, answer, wrong1, wrong2, wrong3, wrong4, wrong5, explanation</string>

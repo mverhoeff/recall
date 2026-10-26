@@ -15,11 +15,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -27,12 +31,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.recall.R
+import com.recall.RecallApp
 import com.recall.io.DeckFileReader
 import com.recall.io.FileKind
 import com.recall.io.ImportValidator
@@ -45,10 +52,14 @@ import com.recall.ui.kiln.ButtonSize
 import com.recall.ui.kiln.ButtonVariant
 import com.recall.ui.kiln.KilnBadge
 import com.recall.ui.kiln.KilnButton
+import com.recall.ui.kiln.KilnDialog
 import com.recall.ui.kiln.KilnIconButton
 import com.recall.ui.kiln.KilnIcons
+import com.recall.ui.kiln.KilnRadio
 import com.recall.ui.kiln.KilnSurface
+import com.recall.ui.kiln.KilnTabs
 import com.recall.ui.kiln.KilnText
+import com.recall.ui.kiln.KilnTextField
 import com.recall.ui.kiln.KilnTile
 import com.recall.ui.kiln.TileSize
 import com.recall.ui.kiln.TileTone
@@ -56,17 +67,24 @@ import com.recall.ui.kiln.rise
 import com.recall.ui.screens.deck.cardTypeName
 import com.recall.ui.theme.Depth
 import com.recall.ui.theme.Kiln
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 private val PickerTypes = arrayOf("text/*", "application/json", "application/octet-stream")
 private const val SHOWN_ISSUES = 20
 private const val PREVIEW_CARDS = 3
+private val BackupDate = DateTimeFormatter.ofPattern("d MMM yyyy", Locale.ENGLISH)
 
 @Composable
-fun ImportScreen(onBack: () -> Unit) {
-    val viewModel = viewModel { ImportViewModel() }
-    val state by viewModel.state.collectAsStateWithLifecycle()
+fun ImportScreen(targetDeckId: Long?, onBack: () -> Unit, onImported: (Long) -> Unit, onRestored: () -> Unit) {
     val context = LocalContext.current
+    val container = (context.applicationContext as RecallApp).container
+    val viewModel = viewModel { ImportViewModel(targetDeckId, container.decks, container.backup) }
+    val state by viewModel.state.collectAsStateWithLifecycle()
     var helping by rememberSaveable { mutableStateOf(false) }
+    var restoring by rememberSaveable { mutableStateOf(false) }
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) viewModel.load(context.contentResolver, uri)
     }
@@ -107,14 +125,140 @@ fun ImportScreen(onBack: () -> Unit) {
                 } else {
                     FileRow(file, onChange = choose, Modifier.rise(0))
                     when (val parsed = file.parsed) {
-                        is ParsedFile.Deck -> DeckPreview(parsed)
+                        is ParsedFile.Deck -> {
+                            DeckPreview(parsed)
+                            if (parsed.cards.isNotEmpty()) TargetPicker(state, viewModel)
+                        }
                         is ParsedFile.Failure -> FailurePanel(parsed.message, Modifier.rise(1))
-                        is ParsedFile.Backup -> Unit
+                        is ParsedFile.Backup -> BackupPanel(parsed, Modifier.rise(1))
+                    }
+                }
+            }
+
+            val parsed = state.file?.parsed
+            if (parsed is ParsedFile.Deck || parsed is ParsedFile.Backup) {
+                Box(Modifier.padding(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 16.dp)) {
+                    if (parsed is ParsedFile.Deck) {
+                        KilnButton(
+                            pluralStringResource(R.plurals.import_button, parsed.cards.size, parsed.cards.size),
+                            { viewModel.import(onImported) },
+                            Modifier.fillMaxWidth(),
+                            size = ButtonSize.Lg,
+                            enabled = state.canImport,
+                        )
+                    } else {
+                        KilnButton(
+                            stringResource(R.string.backup_restore),
+                            { restoring = true },
+                            Modifier.fillMaxWidth(),
+                            variant = ButtonVariant.Pop,
+                            size = ButtonSize.Lg,
+                            enabled = !state.busy,
+                        )
                     }
                 }
             }
         }
         FormatHelpSheet(helping, onDismiss = { helping = false }, Modifier.align(Alignment.BottomCenter))
+    }
+
+    if (restoring) {
+        KilnDialog(
+            title = stringResource(R.string.backup_confirm_title),
+            body = stringResource(R.string.backup_confirm_body),
+            confirmText = stringResource(R.string.backup_confirm),
+            onConfirm = {
+                restoring = false
+                viewModel.restore(onRestored)
+            },
+            dismissText = stringResource(R.string.action_cancel),
+            onDismiss = { restoring = false },
+            destructive = true,
+        )
+    }
+}
+
+@Composable
+private fun TargetPicker(state: ImportUiState, viewModel: ImportViewModel) {
+    Column(Modifier.padding(top = 8.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        if (state.decks.isNotEmpty()) {
+            KilnTabs(
+                items = listOf(stringResource(R.string.library_new_deck), stringResource(R.string.import_existing_deck)),
+                selectedIndex = if (state.intoExisting) 1 else 0,
+                onSelect = { viewModel.setIntoExisting(it == 1) },
+            )
+        }
+        if (state.intoExisting) {
+            Column(Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                state.decks.forEach { deck ->
+                    DeckChoice(deck.name, selected = deck.id == state.existingDeckId, onSelect = { viewModel.selectDeck(deck.id) })
+                }
+            }
+        } else {
+            KilnTextField(
+                value = state.newDeckName,
+                onValueChange = viewModel::setNewDeckName,
+                label = stringResource(R.string.new_deck_name),
+                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+            )
+        }
+    }
+}
+
+@Composable
+private fun DeckChoice(name: String, selected: Boolean, onSelect: () -> Unit) {
+    KilnSurface(
+        Modifier
+            .fillMaxWidth()
+            .defaultMinSize(minHeight = 64.dp)
+            .selectable(selected = selected, role = Role.RadioButton, onClick = onSelect, interactionSource = null, indication = null),
+        depth = Depth.Mold1,
+        shape = RoundedCornerShape(18.dp),
+    ) {
+        Row(
+            Modifier
+                .align(Alignment.CenterStart)
+                .padding(horizontal = 10.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            KilnRadio(selected = selected, onClick = null)
+            KilnText(name, Modifier.weight(1f), style = Kiln.type.bodyStrong, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        }
+    }
+}
+
+@Composable
+private fun BackupPanel(parsed: ParsedFile.Backup, modifier: Modifier = Modifier) {
+    val date = remember(parsed) {
+        runCatching { BackupDate.format(Instant.parse(parsed.backup.exportedAt).atZone(ZoneId.systemDefault())) }.getOrNull()
+    }
+    KilnSurface(modifier.fillMaxWidth(), depth = Depth.Mold2, shape = RoundedCornerShape(26.dp)) {
+        Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            Column {
+                KilnText(
+                    if (date != null) stringResource(R.string.backup_from, date) else stringResource(R.string.backup_restore),
+                    style = Kiln.type.h3,
+                )
+                KilnText(
+                    stringResource(
+                        R.string.backup_caption,
+                        pluralStringResource(R.plurals.deck_count, parsed.deckCount, parsed.deckCount),
+                        pluralStringResource(R.plurals.card_count, parsed.cardCount, parsed.cardCount),
+                    ),
+                    style = Kiln.type.caption,
+                    color = Kiln.colors.ink2,
+                )
+            }
+            KilnSurface(Modifier.fillMaxWidth(), depth = Depth.Dip, shape = RoundedCornerShape(18.dp)) {
+                KilnText(
+                    stringResource(R.string.backup_warning),
+                    Modifier.padding(16.dp),
+                    style = Kiln.type.small,
+                    color = Kiln.colors.warn,
+                )
+            }
+        }
     }
 }
 

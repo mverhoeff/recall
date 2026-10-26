@@ -91,7 +91,16 @@ fun KilnNavHost(navController: NavHostController, modifier: Modifier = Modifier)
                 onMissing = { navController.popBackStack<Home>(inclusive = false) },
             )
         }
-        page<Import> { entry -> ImportScreen(onBack = { navController.back(entry) }) }
+        page<Import> { entry ->
+            ImportScreen(
+                targetDeckId = entry.toRoute<Import>().targetDeckId,
+                onBack = { navController.back(entry) },
+                onImported = { deckId ->
+                    navController.navigate(DeckDetail(deckId)) { popUpTo<Import> { inclusive = true } }
+                },
+                onRestored = { navController.popBackStack<Home>(inclusive = false) },
+            )
+        }
     }
 }
 

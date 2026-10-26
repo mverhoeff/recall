@@ -1,5 +1,6 @@
 package com.recall.data.repo
 
+import androidx.room.withTransaction
 import com.recall.data.db.Card
 import com.recall.data.db.Deck
 import com.recall.data.db.Phase
@@ -7,6 +8,7 @@ import com.recall.data.db.RecallDatabase
 import com.recall.data.db.ReviewState
 import com.recall.data.settings.SettingsRepository
 import com.recall.domain.srs.Scheduler
+import com.recall.io.ImportedCard
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -107,6 +109,33 @@ class DeckRepository(
         val now = clock.millis()
         val position = (cards.maxPosition(card.deckId) ?: -1) + 1
         return cards.insertWithState(card.copy(id = 0, position = position, createdAt = now, updatedAt = now))
+    }
+
+    /**
+     * Appends [imported] to the deck [deckId], or to a new deck named [newDeckName] when [deckId] is null,
+     * all in one transaction. Returns the deck's id.
+     */
+    suspend fun importCards(deckId: Long?, newDeckName: String?, imported: List<ImportedCard>): Long = database.withTransaction {
+        val now = clock.millis()
+        val target = deckId ?: decks.insert(Deck(name = newDeckName.orEmpty().trim(), createdAt = now, updatedAt = now))
+        val start = (cards.maxPosition(target) ?: -1) + 1
+        imported.forEachIndexed { index, card ->
+            cards.insertWithState(
+                Card(
+                    deckId = target,
+                    type = card.type,
+                    prompt = card.prompt,
+                    answer = card.answer,
+                    wrongAnswers = card.wrong,
+                    alsoCorrect = card.alsoCorrect,
+                    explanation = card.explanation,
+                    position = start + index,
+                    createdAt = now,
+                    updatedAt = now,
+                ),
+            )
+        }
+        target
     }
 
     suspend fun updateCard(card: Card) = cards.update(card.copy(updatedAt = clock.millis()))
