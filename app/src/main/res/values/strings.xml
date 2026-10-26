@@ -177,6 +177,7 @@
     <string name="list_and">%1$s and %2$s</string>
 
     <string name="import_title">Import deck</string>
+    <string name="import_format_help">Format help</string>
     <string name="import_choose_prompt">Choose a CSV or JSON file</string>
     <string name="import_choose">Choose file</string>
     <string name="import_change">Change</string>
@@ -184,7 +185,21 @@
     <string name="import_caption_json">JSON · %s</string>
     <string name="import_size_kb">%d KB</string>
     <string name="import_size_mb">%.1f MB</string>
+    <plurals name="import_ready">
+        <item quantity="one">%d card ready</item>
+        <item quantity="other">%d cards ready</item>
+    </plurals>
+    <string name="import_count_mc">%d choice</string>
+    <string name="import_count_tf">%d true/false</string>
+    <plurals name="import_count_flash">
+        <item quantity="one">%d flashcard</item>
+        <item quantity="other">%d flashcards</item>
+    </plurals>
+    <string name="import_count_join">%1$s · %2$s</string>
     <string name="import_nothing">Nothing to import</string>
+    <string name="import_skipped">Skipped</string>
+    <string name="import_more_issues">and %d more</string>
+    <string name="import_preview">Preview</string>
     <string name="import_row">Row %d</string>
     <string name="import_card">Card %d</string>
     <string name="import_error_type">%1$s: type \"%2$s\" isn\'t known. Use mc, tf or card.</string>
@@ -198,6 +213,15 @@
     <string name="import_error_not_deck">This file isn\'t a Recall deck.</string>
     <string name="import_error_newer">This file was made by a newer version of Recall.</string>
     <string name="import_error_unreadable">This file couldn\'t be opened.</string>
+    <string name="help_title">CSV files</string>
+    <string name="help_body">The first row names the columns, in any order. type, prompt and answer are needed; the rest are optional.</string>
+    <string name="help_header">type, prompt, answer, wrong1, wrong2, wrong3, wrong4, wrong5, explanation</string>
+    <string name="help_types">type is mc for a choice card, tf for true/false or card for a flashcard.</string>
+    <string name="help_example_mc">mc, ¿Yo ___ hambre?, tengo, teno, tiene, tienes, Tener is irregular.</string>
+    <string name="help_example_tf">tf, Estar is used for permanent traits., false</string>
+    <string name="help_example_card">card, poder · preterite · yo, pude</string>
+    <string name="help_more_answers">A choice card with more than one right answer takes answer2 to answer5 columns too.</string>
+    <string name="help_json">JSON decks exported from Recall and Recall backups can be imported as they are.</string>
 
     <string name="action_back">Back</string>
     <string name="action_close">Close</string>

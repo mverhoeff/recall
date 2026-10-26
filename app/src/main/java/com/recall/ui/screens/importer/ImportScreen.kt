@@ -19,9 +19,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -32,11 +36,14 @@ import com.recall.R
 import com.recall.io.DeckFileReader
 import com.recall.io.FileKind
 import com.recall.io.ImportValidator
+import com.recall.io.ImportedCard
 import com.recall.io.NEWER_VERSION
 import com.recall.io.NOT_A_DECK
 import com.recall.io.ParsedFile
+import com.recall.ui.kiln.BadgeTone
 import com.recall.ui.kiln.ButtonSize
 import com.recall.ui.kiln.ButtonVariant
+import com.recall.ui.kiln.KilnBadge
 import com.recall.ui.kiln.KilnButton
 import com.recall.ui.kiln.KilnIconButton
 import com.recall.ui.kiln.KilnIcons
@@ -46,16 +53,20 @@ import com.recall.ui.kiln.KilnTile
 import com.recall.ui.kiln.TileSize
 import com.recall.ui.kiln.TileTone
 import com.recall.ui.kiln.rise
+import com.recall.ui.screens.deck.cardTypeName
 import com.recall.ui.theme.Depth
 import com.recall.ui.theme.Kiln
 
 private val PickerTypes = arrayOf("text/*", "application/json", "application/octet-stream")
+private const val SHOWN_ISSUES = 20
+private const val PREVIEW_CARDS = 3
 
 @Composable
 fun ImportScreen(onBack: () -> Unit) {
     val viewModel = viewModel { ImportViewModel() }
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    var helping by rememberSaveable { mutableStateOf(false) }
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) viewModel.load(context.contentResolver, uri)
     }
@@ -75,6 +86,12 @@ fun ImportScreen(onBack: () -> Unit) {
             ) {
                 KilnIconButton(KilnIcons.back, stringResource(R.string.action_back), onBack)
                 KilnText(stringResource(R.string.import_title), Modifier.weight(1f), style = Kiln.type.h3)
+                KilnButton(
+                    stringResource(R.string.import_format_help),
+                    { helping = true },
+                    variant = ButtonVariant.Ghost,
+                    size = ButtonSize.Sm,
+                )
             }
 
             Column(
@@ -90,13 +107,14 @@ fun ImportScreen(onBack: () -> Unit) {
                 } else {
                     FileRow(file, onChange = choose, Modifier.rise(0))
                     when (val parsed = file.parsed) {
-                        is ParsedFile.Deck -> Unit
+                        is ParsedFile.Deck -> DeckPreview(parsed)
                         is ParsedFile.Failure -> FailurePanel(parsed.message, Modifier.rise(1))
                         is ParsedFile.Backup -> Unit
                     }
                 }
             }
         }
+        FormatHelpSheet(helping, onDismiss = { helping = false }, Modifier.align(Alignment.BottomCenter))
     }
 }
 
@@ -153,6 +171,68 @@ private fun FileRow(file: PickedFile, onChange: () -> Unit, modifier: Modifier =
 }
 
 @Composable
+private fun DeckPreview(parsed: ParsedFile.Deck) {
+    SummaryPanel(parsed, Modifier.rise(1))
+    if (parsed.cards.isNotEmpty()) {
+        KilnText(
+            stringResource(R.string.import_preview),
+            Modifier
+                .padding(top = 4.dp)
+                .rise(2),
+            style = Kiln.type.label,
+            color = Kiln.colors.ink2,
+            uppercase = true,
+        )
+        parsed.cards.take(PREVIEW_CARDS).forEachIndexed { index, card ->
+            PreviewRow(card, Modifier.rise(3 + index))
+        }
+    }
+}
+
+@Composable
+private fun SummaryPanel(parsed: ParsedFile.Deck, modifier: Modifier = Modifier) {
+    val ready = parsed.cards.size
+    KilnSurface(modifier.fillMaxWidth(), depth = Depth.Mold2, shape = RoundedCornerShape(26.dp)) {
+        Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                KilnTile(tone = if (ready > 0) TileTone.Ok else TileTone.Err, size = TileSize.Sm, icon = if (ready > 0) KilnIcons.check else KilnIcons.close)
+                Column(Modifier.weight(1f)) {
+                    KilnText(pluralStringResource(R.plurals.import_ready, ready, ready), style = Kiln.type.h3)
+                    if (ready > 0) {
+                        KilnText(countsCaption(parsed), style = Kiln.type.caption, color = Kiln.colors.ink2)
+                    }
+                }
+            }
+            if (parsed.issues.isNotEmpty()) {
+                KilnSurface(Modifier.fillMaxWidth(), depth = Depth.Dip, shape = RoundedCornerShape(18.dp)) {
+                    Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                        parsed.issues.take(SHOWN_ISSUES).forEach { issue ->
+                            Row(
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp),
+                                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            ) {
+                                KilnBadge(stringResource(R.string.import_skipped), tone = BadgeTone.Err)
+                                KilnText(importMessage(issue.message), Modifier.weight(1f), style = Kiln.type.small)
+                            }
+                        }
+                        if (parsed.issues.size > SHOWN_ISSUES) {
+                            KilnText(
+                                stringResource(R.string.import_more_issues, parsed.issues.size - SHOWN_ISSUES),
+                                Modifier.padding(vertical = 8.dp),
+                                style = Kiln.type.small,
+                                color = Kiln.colors.ink2,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
 private fun FailurePanel(message: String, modifier: Modifier = Modifier) {
     KilnSurface(modifier.fillMaxWidth(), depth = Depth.Mold2, shape = RoundedCornerShape(26.dp)) {
         Row(
@@ -167,6 +247,40 @@ private fun FailurePanel(message: String, modifier: Modifier = Modifier) {
             }
         }
     }
+}
+
+@Composable
+private fun PreviewRow(card: ImportedCard, modifier: Modifier = Modifier) {
+    KilnSurface(
+        modifier
+            .fillMaxWidth()
+            .defaultMinSize(minHeight = 72.dp),
+        depth = Depth.Mold1,
+        shape = RoundedCornerShape(18.dp),
+    ) {
+        Column(
+            Modifier
+                .align(Alignment.CenterStart)
+                .padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            KilnBadge(cardTypeName(card.type))
+            KilnText(card.prompt, style = Kiln.type.bodyStrong, maxLines = 2, overflow = TextOverflow.Ellipsis)
+        }
+    }
+}
+
+@Composable
+private fun countsCaption(parsed: ParsedFile.Deck): String {
+    val counts = parsed.counts
+    val parts = listOfNotNull(
+        counts.choice.takeIf { it > 0 }?.let { stringResource(R.string.import_count_mc, it) },
+        counts.trueFalse.takeIf { it > 0 }?.let { stringResource(R.string.import_count_tf, it) },
+        counts.flashcards.takeIf { it > 0 }?.let { pluralStringResource(R.plurals.import_count_flash, it, it) },
+    )
+    var caption = parts.first()
+    for (part in parts.drop(1)) caption = stringResource(R.string.import_count_join, caption, part)
+    return caption
 }
 
 @Composable
