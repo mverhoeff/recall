@@ -330,6 +330,13 @@
     <string name="reminder_minute">Minute</string>
     <string name="reminder_minute_value">%02d</string>
     <string name="reminder_done">Done</string>
+    <string name="reminder_channel">Study reminders</string>
+    <string name="reminder_notification_title">Cards are waiting</string>
+    <string name="reminder_notification_text">%1$s · %2$s</string>
+    <plurals name="reminder_notification_due">
+        <item quantity="one">%d card due today</item>
+        <item quantity="other">%d cards due today</item>
+    </plurals>
 
     <string name="action_back">Back</string>
     <string name="action_close">Close</string>

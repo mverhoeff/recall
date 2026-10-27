@@ -31,7 +31,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.recall.RecallApp
+import com.recall.notify.ReminderWorker
 import com.recall.ui.kiln.BadgeTone
 import com.recall.ui.kiln.BlobShape
 import com.recall.ui.kiln.BlobTone
@@ -89,6 +92,7 @@ fun KilnGallery() {
             ) {
                 PaletteSwitcher(body, dark, onBody = { body = it }, onDark = { darkOverride = !dark })
                 SeedButton()
+                ReminderButton()
                 ChipsAndBadges()
                 TilesAndProgress()
                 Controls()
@@ -131,6 +135,16 @@ private fun SeedButton() {
         onClick = { scope.launch { SampleData.seed(container); seeded = true } },
         variant = ButtonVariant.Secondary,
         enabled = !seeded,
+    )
+}
+
+@Composable
+private fun ReminderButton() {
+    val context = LocalContext.current
+    KilnButton(
+        "Send reminder now",
+        onClick = { WorkManager.getInstance(context).enqueue(OneTimeWorkRequestBuilder<ReminderWorker>().build()) },
+        variant = ButtonVariant.Secondary,
     )
 }
 

@@ -54,6 +54,7 @@ import com.recall.R
 import com.recall.RecallApp
 import com.recall.data.settings.AppSettings
 import com.recall.data.settings.ThemeMode
+import com.recall.notify.ReminderScheduler
 import com.recall.ui.kiln.ButtonVariant
 import com.recall.ui.kiln.KilnButton
 import com.recall.ui.kiln.KilnDialog
@@ -90,7 +91,16 @@ private val OptionShape = RoundedCornerShape(18.dp)
 fun SettingsScreen(onImport: () -> Unit, onDeletedAll: () -> Unit) {
     val context = LocalContext.current
     val container = (context.applicationContext as RecallApp).container
-    val viewModel = viewModel { SettingsViewModel(container.settings, container.backup, container.database) }
+    val viewModel = viewModel {
+        val app = context.applicationContext
+        SettingsViewModel(container.settings, container.backup, container.database) { settings ->
+            if (settings.reminderEnabled) {
+                ReminderScheduler.schedule(app, settings.reminderHour, settings.reminderMinute)
+            } else {
+                ReminderScheduler.cancel(app)
+            }
+        }
+    }
     val state by viewModel.state.collectAsStateWithLifecycle()
     val arrival = Modifier.arrival(state != null)
     val settings = state ?: return
