@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -83,6 +84,12 @@ fun TabsHost(app: NavHostController) {
                 modifier = Modifier.fillMaxSize(),
                 // The neighbours are ready before a swipe starts, so the first one doesn't stutter.
                 beyondViewportPageCount = 1,
+                // The default snap is a spring, which would keep moving with reduced motion on.
+                flingBehavior = if (motion.reduced) {
+                    PagerDefaults.flingBehavior(pager, snapAnimationSpec = motion.base())
+                } else {
+                    PagerDefaults.flingBehavior(pager)
+                },
                 key = { Tab.entries[it] },
             ) { index ->
                 RiseEntrance {

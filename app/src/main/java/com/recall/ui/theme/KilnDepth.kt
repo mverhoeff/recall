@@ -3,8 +3,6 @@ package com.recall.ui.theme
 import android.graphics.BlurMaskFilter
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.CubicBezierEasing
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -122,8 +120,6 @@ fun ShadowRole.color(colors: KilnColors) = when (this) {
 
 fun ShadowLayer.resolve(colors: KilnColors) = ResolvedLayer(x, y, blur, spread, role.color(colors))
 
-private val settle = CubicBezierEasing(0.22f, 1f, 0.36f, 1f)
-
 private val OnColourShade = Color.Black.copy(alpha = 0.3f)
 private val OnColourLight = Color.White.copy(alpha = 0.3f)
 
@@ -134,7 +130,7 @@ fun Modifier.kilnDepth(
     fill: Color,
     colors: KilnColors,
     animate: Boolean = true,
-    animationSpec: AnimationSpec<Float> = tween(260, easing = settle),
+    animationSpec: AnimationSpec<Float> = Kiln.motion.base(),
     onColour: Boolean = false,
 ): Modifier {
     // Only the depth animates. Colours are looked up while drawing, so a theme switch recolours
