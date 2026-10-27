@@ -31,8 +31,8 @@ import com.recall.ui.kiln.BottomBarItem
 import com.recall.ui.kiln.KilnBottomBar
 import com.recall.ui.kiln.KilnIcons
 import com.recall.ui.kiln.RiseEntrance
-import com.recall.ui.screens.PlaceholderScreen
 import com.recall.ui.screens.library.LibraryScreen
+import com.recall.ui.screens.progress.ProgressScreen
 import com.recall.ui.screens.settings.SettingsScreen
 import com.recall.ui.theme.Kiln
 import kotlin.coroutines.cancellation.CancellationException
@@ -92,7 +92,7 @@ fun TabsHost(app: NavHostController) {
                             onImport = { app.navigate(Import()) },
                             onStartReview = { app.navigate(Study(mode = StudyMode.DUE.name)) },
                         )
-                        Tab.PROGRESS -> PlaceholderScreen(stringResource(R.string.nav_progress))
+                        Tab.PROGRESS -> ProgressScreen()
                         Tab.SETTINGS -> SettingsScreen(
                             onImport = { app.navigate(Import()) },
                             onDeletedAll = { showTab(Tab.LIBRARY.ordinal) },
