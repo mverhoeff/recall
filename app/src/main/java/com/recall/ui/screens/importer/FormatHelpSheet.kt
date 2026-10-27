@@ -46,7 +46,7 @@ fun FormatHelpSheet(visible: Boolean, onDismiss: () -> Unit, modifier: Modifier 
 @Composable
 private fun ColumnScope.HelpContent() {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        KilnText(stringResource(R.string.help_title), style = Kiln.type.h3)
+        KilnText(stringResource(R.string.help_title), style = Kiln.type.h3, heading = true)
         KilnText(stringResource(R.string.help_intro), style = Kiln.type.small, color = Kiln.colors.ink2)
     }
 
@@ -112,5 +112,5 @@ private fun csvLine(row: String) = row.replace(",", ",​")
 
 @Composable
 private fun GroupLabel(text: String) {
-    KilnText(text, style = Kiln.type.label, color = Kiln.colors.ink2, uppercase = true)
+    KilnText(text, style = Kiln.type.label, color = Kiln.colors.ink2, uppercase = true, heading = true)
 }

@@ -116,7 +116,7 @@ fun DeckDetailScreen(
                         color = Kiln.colors.ink2,
                         uppercase = true,
                     )
-                    KilnText(summary.deck.name, style = Kiln.type.h1)
+                    KilnText(summary.deck.name, style = Kiln.type.h1, heading = true)
                     if (summary.deck.description.isNotBlank()) {
                         KilnText(summary.deck.description, style = Kiln.type.small, color = Kiln.colors.ink2)
                     }
@@ -158,7 +158,7 @@ fun DeckDetailScreen(
                         .padding(top = 12.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    KilnText(stringResource(R.string.deck_cards), Modifier.weight(1f), style = Kiln.type.h3)
+                    KilnText(stringResource(R.string.deck_cards), Modifier.weight(1f), style = Kiln.type.h3, heading = true)
                     if (current.cards.size > PreviewRows) {
                         KilnButton(
                             stringResource(R.string.deck_see_all, current.cards.size),

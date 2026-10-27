@@ -34,7 +34,7 @@ fun ReminderTimeSheet(
     modifier: Modifier = Modifier,
 ) {
     KilnSheet(visible, onDismiss, modifier) {
-        KilnText(stringResource(R.string.reminder_title), style = Kiln.type.h3)
+        KilnText(stringResource(R.string.reminder_title), style = Kiln.type.h3, heading = true)
         KilnText(
             stringResource(R.string.reminder_time, hour, minute),
             Modifier.fillMaxWidth(),

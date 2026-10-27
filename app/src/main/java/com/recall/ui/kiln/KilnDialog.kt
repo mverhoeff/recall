@@ -35,7 +35,7 @@ fun KilnDialog(
             shape = RoundedCornerShape(38.dp),
         ) {
             Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                KilnText(title, style = Kiln.type.h3)
+                KilnText(title, style = Kiln.type.h3, heading = true)
                 KilnText(body, style = Kiln.type.small, color = Kiln.colors.ink2)
                 Row(
                     Modifier

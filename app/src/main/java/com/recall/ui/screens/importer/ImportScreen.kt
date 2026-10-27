@@ -103,7 +103,7 @@ fun ImportScreen(targetDeckId: Long?, onBack: () -> Unit, onImported: (Long) -> 
                 horizontalArrangement = Arrangement.spacedBy(14.dp),
             ) {
                 KilnIconButton(KilnIcons.back, stringResource(R.string.action_back), onBack)
-                KilnText(stringResource(R.string.import_title), Modifier.weight(1f), style = Kiln.type.h3)
+                KilnText(stringResource(R.string.import_title), Modifier.weight(1f), style = Kiln.type.h3, heading = true)
                 KilnButton(
                     stringResource(R.string.import_format_help),
                     { helping = true },

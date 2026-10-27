@@ -122,7 +122,7 @@ fun LibraryScreen(onOpenDeck: (Long) -> Unit, onImport: () -> Unit, onStartRevie
                             .padding(top = 16.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        KilnText(stringResource(R.string.library_your_decks), Modifier.weight(1f), style = Kiln.type.h3)
+                        KilnText(stringResource(R.string.library_your_decks), Modifier.weight(1f), style = Kiln.type.h3, heading = true)
                         KilnChip(
                             text = stringResource(if (current.sort == DeckSort.DUE_FIRST) R.string.library_sort_due else R.string.library_sort_az),
                             selected = false,
@@ -216,7 +216,7 @@ private fun Header(
         } else {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 KilnText(today.format(HeaderDate), style = Kiln.type.label, color = Kiln.colors.ink2, uppercase = true)
-                KilnText(stringResource(R.string.nav_library), style = Kiln.type.h1)
+                KilnText(stringResource(R.string.nav_library), style = Kiln.type.h1, heading = true)
             }
         }
         if (query != null) {

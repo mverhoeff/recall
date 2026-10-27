@@ -148,7 +148,7 @@ fun SettingsScreen(onImport: () -> Unit, onDeletedAll: () -> Unit) {
                 ),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            KilnText(stringResource(R.string.settings_title), style = Kiln.type.h1)
+            KilnText(stringResource(R.string.settings_title), style = Kiln.type.h1, heading = true)
 
             SectionLabel(stringResource(R.string.settings_colour))
             FitColumns(listOf(4, 2), Modifier.selectableGroup(), spacing = 10.dp) {
@@ -417,7 +417,7 @@ private fun DataRow(title: String, caption: String, onClick: () -> Unit, modifie
 
 @Composable
 private fun SectionLabel(text: String) {
-    KilnText(text, Modifier.padding(top = 8.dp), style = Kiln.type.label, color = Kiln.colors.ink2, uppercase = true)
+    KilnText(text, Modifier.padding(top = 8.dp), style = Kiln.type.label, color = Kiln.colors.ink2, uppercase = true, heading = true)
 }
 
 @Composable

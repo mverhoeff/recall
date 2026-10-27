@@ -50,7 +50,7 @@ fun NewDeckDialog(onDismiss: () -> Unit, onCreate: (name: String, description: S
             shape = RoundedCornerShape(38.dp),
         ) {
             Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                KilnText(stringResource(R.string.library_new_deck), style = Kiln.type.h3)
+                KilnText(stringResource(R.string.library_new_deck), style = Kiln.type.h3, heading = true)
                 KilnTextField(
                     value = name,
                     onValueChange = { name = it },

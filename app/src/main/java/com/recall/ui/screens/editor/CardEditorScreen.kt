@@ -95,6 +95,7 @@ fun CardEditorScreen(deckId: Long, cardId: Long?, onClose: () -> Unit) {
                 KilnText(
                     stringResource(if (current.original == null) R.string.editor_new else R.string.editor_edit),
                     style = Kiln.type.h3,
+                    heading = true,
                 )
                 KilnText(
                     current.deckName,

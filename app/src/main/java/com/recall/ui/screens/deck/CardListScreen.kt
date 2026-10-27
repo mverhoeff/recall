@@ -56,7 +56,7 @@ fun CardListScreen(deckId: Long, onBack: () -> Unit, onOpenCard: (Long) -> Unit)
             ) {
                 KilnIconButton(KilnIcons.back, stringResource(R.string.action_back), onBack)
                 Column(Modifier.weight(1f)) {
-                    KilnText(stringResource(R.string.deck_cards), style = Kiln.type.h3)
+                    KilnText(stringResource(R.string.deck_cards), style = Kiln.type.h3, heading = true)
                     KilnText(
                         stringResource(
                             R.string.card_list_caption,

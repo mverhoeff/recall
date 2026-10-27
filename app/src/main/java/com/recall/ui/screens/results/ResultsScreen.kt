@@ -103,7 +103,7 @@ fun ResultsScreen(sessionKey: String, onRetry: (List<Long>) -> Unit, onBack: () 
         ) {
             Score(result)
             Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                KilnText(title(result.accuracy), style = Kiln.type.h1, textAlign = TextAlign.Center)
+                KilnText(title(result.accuracy), style = Kiln.type.h1, textAlign = TextAlign.Center, heading = true)
                 KilnText(body(result), style = Kiln.type.small, color = Kiln.colors.ink2, textAlign = TextAlign.Center)
             }
             Row(Modifier.fillMaxWidth().padding(top = 4.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {

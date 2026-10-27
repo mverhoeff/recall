@@ -73,7 +73,7 @@ fun ProgressScreen() {
         item(key = "header") {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 KilnText(stringResource(R.string.progress_this_week), style = Kiln.type.label, color = Kiln.colors.ink2, uppercase = true)
-                KilnText(stringResource(R.string.nav_progress), style = Kiln.type.h1)
+                KilnText(stringResource(R.string.nav_progress), style = Kiln.type.h1, heading = true)
             }
         }
         if (!current.hasReviews) {
@@ -95,6 +95,7 @@ fun ProgressScreen() {
                     stringResource(R.string.progress_accuracy_title),
                     Modifier.padding(top = 16.dp).rise(2),
                     style = Kiln.type.h3,
+                    heading = true,
                 )
             }
             itemsIndexed(current.decks, key = { _, it -> it.deckId }) { index, deck ->
@@ -156,7 +157,7 @@ private fun WeekPanel(state: ProgressStats, modifier: Modifier = Modifier) {
     KilnSurface(modifier.fillMaxWidth()) {
         Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                KilnText(stringResource(R.string.progress_daily_reviews), Modifier.weight(1f), style = Kiln.type.h3)
+                KilnText(stringResource(R.string.progress_daily_reviews), Modifier.weight(1f), style = Kiln.type.h3, heading = true)
                 KilnText(stringResource(R.string.progress_goal, DailyGoal), style = Kiln.type.caption, color = Kiln.colors.ink2)
             }
             WeekBars(state.week, todayIndex, DailyGoal)

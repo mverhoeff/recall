@@ -31,6 +31,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.toggleableState
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.font.FontWeight
@@ -290,6 +291,12 @@ private fun OptionFrame(
     val resolved = press.depth.resolve(LocalOnGround.current)
     val alpha by animateFloatAsState(if (look == Look.Dimmed) 0.55f else 1f, Kiln.motion.base(), label = "dim")
     val checked = look != Look.Idle && look != Look.Picked
+    // After checking, right and wrong show only as colour and icon, so they are spoken too.
+    val verdict = when (look) {
+        Look.Right -> stringResource(R.string.quiz_state_right)
+        Look.Wrong -> stringResource(R.string.quiz_state_wrong)
+        else -> null
+    }
     Box(
         modifier
             .alpha(alpha)
@@ -297,6 +304,7 @@ private fun OptionFrame(
             .kilnDepth(resolved, shape, neutralFill(press.depth, resolved, colors.surface2, colors), colors, animationSpec = press.depthSpec)
             .semantics {
                 if (multiple) toggleableState = ToggleableState(picked) else selected = picked
+                if (verdict != null) stateDescription = verdict
             }
             .kilnPressable(
                 interactionSource,
