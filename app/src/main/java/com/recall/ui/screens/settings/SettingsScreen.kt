@@ -59,6 +59,7 @@ import com.recall.data.settings.ThemeMode
 import com.recall.notify.ReminderScheduler
 import com.recall.notify.notificationsAllowed
 import com.recall.ui.kiln.ButtonVariant
+import com.recall.ui.kiln.FitColumns
 import com.recall.ui.kiln.KilnButton
 import com.recall.ui.kiln.KilnDialog
 import com.recall.ui.kiln.KilnIcon
@@ -150,9 +151,9 @@ fun SettingsScreen(onImport: () -> Unit, onDeletedAll: () -> Unit) {
             KilnText(stringResource(R.string.settings_title), style = Kiln.type.h1)
 
             SectionLabel(stringResource(R.string.settings_colour))
-            Row(Modifier.selectableGroup(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            FitColumns(listOf(4, 2), Modifier.selectableGroup(), spacing = 10.dp) {
                 ClayBody.entries.forEach { palette ->
-                    PaletteOption(palette, settings.palette == palette, { viewModel.setPalette(palette) }, Modifier.weight(1f))
+                    PaletteOption(palette, settings.palette == palette, { viewModel.setPalette(palette) }, Modifier)
                 }
             }
             KilnTabs(

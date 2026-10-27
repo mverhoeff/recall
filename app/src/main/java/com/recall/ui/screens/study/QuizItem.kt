@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -163,9 +164,14 @@ private fun QuestionCard(item: SessionItem, deckName: String?) {
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             // Both lines leave room for the pebble in the corner.
-            Row(Modifier.padding(end = 56.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            // A long deck name moves to a line of its own instead of being cut short.
+            FlowRow(
+                Modifier.padding(end = 56.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
                 KilnBadge(cardTypeName(item.card.type), tone = BadgeTone.Accent)
-                if (deckName != null) KilnBadge(deckName, Modifier.weight(1f, fill = false))
+                if (deckName != null) KilnBadge(deckName)
             }
             KilnText(item.card.prompt, Modifier.padding(end = 28.dp), style = Kiln.type.h2)
             if (item.multiple) {

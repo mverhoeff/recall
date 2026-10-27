@@ -71,10 +71,10 @@ private fun ColumnScope.HelpContent() {
         GroupLabel(stringResource(R.string.help_examples))
         KilnSurface(Modifier.fillMaxWidth(), depth = Depth.Dip, shape = RoundedCornerShape(18.dp)) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                KilnText(stringResource(R.string.help_example_header), style = Kiln.type.small.copy(fontWeight = FontWeight.Bold))
-                KilnText(stringResource(R.string.help_example_mc), style = Kiln.type.small)
-                KilnText(stringResource(R.string.help_example_tf), style = Kiln.type.small)
-                KilnText(stringResource(R.string.help_example_card), style = Kiln.type.small)
+                KilnText(csvLine(stringResource(R.string.help_example_header)), style = Kiln.type.small.copy(fontWeight = FontWeight.Bold))
+                KilnText(csvLine(stringResource(R.string.help_example_mc)), style = Kiln.type.small)
+                KilnText(csvLine(stringResource(R.string.help_example_tf)), style = Kiln.type.small)
+                KilnText(csvLine(stringResource(R.string.help_example_card)), style = Kiln.type.small)
             }
         }
     }
@@ -106,6 +106,9 @@ private fun ColumnGroup(label: String, columns: List<Pair<Int, Int>>) {
         }
     }
 }
+
+// A CSV row has few spaces, so a narrow screen would break it inside a word; this lets it break after commas.
+private fun csvLine(row: String) = row.replace(",", ",​")
 
 @Composable
 private fun GroupLabel(text: String) {

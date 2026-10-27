@@ -5,6 +5,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -24,6 +25,7 @@ import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -98,17 +100,24 @@ fun WeekBars(counts: List<Int>, todayIndex: Int, goal: Int, modifier: Modifier =
                 }
             }
         }
-        Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp)) {
-            shortDays.forEachIndexed { index, day ->
-                val today = index == todayIndex
-                KilnText(
-                    if (today) stringResource(R.string.progress_today) else day,
-                    Modifier.weight(1f),
-                    style = Kiln.type.caption,
-                    color = if (today) colors.accent else colors.ink2,
-                    textAlign = TextAlign.Center,
-                    maxLines = 1,
-                )
+        val todayLabel = stringResource(R.string.progress_today)
+        val labelStyle = Kiln.type.caption
+        val measurer = rememberTextMeasurer()
+        BoxWithConstraints(Modifier.fillMaxWidth().padding(horizontal = 8.dp)) {
+            // With large text "Today" can be wider than its bar's column; the short day name, in accent, still marks it.
+            val todayFits = measurer.measure(todayLabel, labelStyle, maxLines = 1).size.width <= constraints.maxWidth / 7
+            Row(Modifier.fillMaxWidth()) {
+                shortDays.forEachIndexed { index, day ->
+                    val today = index == todayIndex
+                    KilnText(
+                        if (today && todayFits) todayLabel else day,
+                        Modifier.weight(1f),
+                        style = labelStyle,
+                        color = if (today) colors.accent else colors.ink2,
+                        textAlign = TextAlign.Center,
+                        maxLines = 1,
+                    )
+                }
             }
         }
     }

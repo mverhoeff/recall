@@ -41,6 +41,7 @@ import com.recall.RecallApp
 import com.recall.data.db.CardType
 import com.recall.ui.kiln.ButtonSize
 import com.recall.ui.kiln.ButtonVariant
+import com.recall.ui.kiln.FitColumns
 import com.recall.ui.kiln.KilnCheckbox
 import com.recall.ui.kiln.KilnButton
 import com.recall.ui.kiln.KilnDialog
@@ -164,11 +165,11 @@ fun CardEditorScreen(deckId: Long, cardId: Long?, onClose: () -> Unit) {
             Modifier.padding(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            FitColumns(listOf(2, 1)) {
                 KilnButton(
                     stringResource(R.string.editor_save_next),
                     viewModel::saveAndAddNext,
-                    Modifier.weight(1f),
+                    Modifier.fillMaxWidth(),
                     variant = ButtonVariant.Secondary,
                     size = ButtonSize.Lg,
                     horizontalPadding = HalfWidthPadding,
@@ -176,7 +177,7 @@ fun CardEditorScreen(deckId: Long, cardId: Long?, onClose: () -> Unit) {
                 KilnButton(
                     stringResource(R.string.editor_save),
                     { viewModel.save(onClose) },
-                    Modifier.weight(1f),
+                    Modifier.fillMaxWidth(),
                     size = ButtonSize.Lg,
                     horizontalPadding = HalfWidthPadding,
                 )

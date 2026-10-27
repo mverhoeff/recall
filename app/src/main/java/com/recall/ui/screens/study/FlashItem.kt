@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -84,9 +85,9 @@ fun FlashItem(
         modifier.padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 16.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             KilnBadge(cardTypeName(item.card.type), tone = BadgeTone.Accent)
-            if (deckName != null) KilnBadge(deckName, Modifier.weight(1f, fill = false))
+            if (deckName != null) KilnBadge(deckName)
         }
         FlashCard(item.card, flipped, onFlip, Modifier.weight(1f).fillMaxWidth())
         Crossfade(flipped, Modifier.fillMaxWidth().height(ActionsHeight), Kiln.motion.base(), label = "actions") { back ->
