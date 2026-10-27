@@ -1,30 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Recall launcher icon, foreground layer. 108dp adaptive canvas; content stays inside the 66dp safe zone. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:aapt="http://schemas.android.com/aapt"
-    android:width="108dp"
-    android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
-    <path android:pathData="M31,63.928c0,0 6.4,-11 12.1,-13.1c7.2,-2.6 26,-1.4 26,-1.4l38.1,38.1L107,108.928l-32,-1L31,63.928z">
-        <aapt:attr name="android:fillColor">
-            <gradient
-                android:endX="85.84757"
-                android:endY="92.4963"
-                android:startX="42.9492"
-                android:startY="49.59793"
-                android:type="linear">
-                <item
-                    android:color="#44000000"
-                    android:offset="0.0" />
-                <item
-                    android:color="#00000000"
-                    android:offset="1.0" />
-            </gradient>
-        </aapt:attr>
-    </path>
-    <path
-        android:fillColor="#FFFFFF"
-        android:fillType="nonZero"
-        android:pathData="M65.3,45.828l3.8,-6.6c0.2,-0.4 0.1,-0.9 -0.3,-1.1c-0.4,-0.2 -0.9,-0.1 -1.1,0.3l-3.9,6.7c-6.3,-2.8 -13.4,-2.8 -19.7,0l-3.9,-6.7c-0.2,-0.4 -0.7,-0.5 -1.1,-0.3C38.8,38.328 38.7,38.828 38.9,39.228l3.8,6.6C36.2,49.428 31.7,56.028 31,63.928h46C76.3,56.028 71.8,49.428 65.3,45.828zM43.4,57.328c-0.8,0 -1.5,-0.5 -1.8,-1.2c-0.3,-0.7 -0.1,-1.5 0.4,-2.1c0.5,-0.5 1.4,-0.7 2.1,-0.4c0.7,0.3 1.2,1 1.2,1.8C45.3,56.528 44.5,57.328 43.4,57.328L43.4,57.328zM64.6,57.328c-0.8,0 -1.5,-0.5 -1.8,-1.2s-0.1,-1.5 0.4,-2.1c0.5,-0.5 1.4,-0.7 2.1,-0.4c0.7,0.3 1.2,1 1.2,1.8C66.5,56.528 65.6,57.328 64.6,57.328L64.6,57.328z"
-        android:strokeWidth="1"
-        android:strokeColor="#00000000" />
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- back card: accentSoft, with a light edge top-left and a soft shadow bottom-right -->
+    <group android:rotation="-12" android:pivotX="50" android:pivotY="55">
+        <path android:pathData="M39.5,31.5H57.5A8,8 0 0 1 65.5,39.5V67.5A8,8 0 0 1 57.5,75.5H39.5A8,8 0 0 1 31.5,67.5V39.5A8,8 0 0 1 39.5,31.5Z" android:fillColor="#B3FFFFFF" />
+        <path android:pathData="M43,36H61A8,8 0 0 1 69,44V72A8,8 0 0 1 61,80H43A8,8 0 0 1 35,72V44A8,8 0 0 1 43,36Z" android:fillColor="#24566A8A" />
+        <path android:pathData="M42.5,35H60.5A8,8 0 0 1 68.5,43V71A8,8 0 0 1 60.5,79H42.5A8,8 0 0 1 34.5,71V43A8,8 0 0 1 42.5,35Z" android:fillColor="#38566A8A" />
+        <path android:pathData="M41,33H59A8,8 0 0 1 67,41V69A8,8 0 0 1 59,77H41A8,8 0 0 1 33,69V41A8,8 0 0 1 41,33Z" android:fillColor="#C6D3E2" />
+    </group>
+    <!-- front card: accent, with the return loop in accentInk -->
+    <group android:rotation="8" android:pivotX="58" android:pivotY="53">
+        <path android:pathData="M53,37H71A8,8 0 0 1 79,45V73A8,8 0 0 1 71,81H53A8,8 0 0 1 45,73V45A8,8 0 0 1 53,37Z" android:fillColor="#29566A8A" />
+        <path android:pathData="M51,34H69A8,8 0 0 1 77,42V70A8,8 0 0 1 69,78H51A8,8 0 0 1 43,70V42A8,8 0 0 1 51,34Z" android:fillColor="#42566A8A" />
+        <path android:pathData="M49,31H67A8,8 0 0 1 75,39V67A8,8 0 0 1 67,75H49A8,8 0 0 1 41,67V39A8,8 0 0 1 49,31Z" android:fillColor="#4C6A8C" />
+        <path android:pathData="M62.5,45.21A9,9 0 1,1 50.21,48.5" android:fillColor="#00000000" android:strokeColor="#FFFFFF"
+            android:strokeWidth="3.6" android:strokeLineCap="round" android:strokeLineJoin="round" />
+        <path android:pathData="M52.01,45.38L52.9,51.44L46.32,47.64Z" android:fillColor="#FFFFFF" />
+    </group>
 </vector>
