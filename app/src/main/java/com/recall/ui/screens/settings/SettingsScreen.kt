@@ -1,5 +1,6 @@
 package com.recall.ui.screens.settings
 
+import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Canvas
@@ -47,6 +48,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.recall.BuildConfig
@@ -55,6 +57,7 @@ import com.recall.RecallApp
 import com.recall.data.settings.AppSettings
 import com.recall.data.settings.ThemeMode
 import com.recall.notify.ReminderScheduler
+import com.recall.notify.notificationsAllowed
 import com.recall.ui.kiln.ButtonVariant
 import com.recall.ui.kiln.KilnButton
 import com.recall.ui.kiln.KilnDialog
@@ -109,6 +112,25 @@ fun SettingsScreen(onImport: () -> Unit, onDeletedAll: () -> Unit) {
     val backupPicker = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
         if (uri != null) viewModel.backUp(context.contentResolver, uri)
     }
+    // Re-read on every return to the app, since notifications can be allowed in Android's settings meanwhile.
+    var notificationsOn by remember { mutableStateOf(notificationsAllowed(context)) }
+    var refused by rememberSaveable { mutableStateOf(false) }
+    LifecycleResumeEffect(Unit) {
+        notificationsOn = notificationsAllowed(context)
+        onPauseOrDispose {}
+    }
+    val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        notificationsOn = granted
+        refused = !granted
+        if (granted) viewModel.setReminderEnabled(true)
+    }
+    val toggleReminder: (Boolean) -> Unit = { on ->
+        if (on && !notificationsAllowed(context)) {
+            permission.launch(Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+            viewModel.setReminderEnabled(on)
+        }
+    }
 
     val safe = WindowInsets.safeDrawing.asPaddingValues()
     val navBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
@@ -150,7 +172,13 @@ fun SettingsScreen(onImport: () -> Unit, onDeletedAll: () -> Unit) {
                 }
             }
 
-            PreferencesPanel(settings, viewModel, onPickTime = { pickingTime = true })
+            PreferencesPanel(
+                settings,
+                viewModel,
+                onToggleReminder = toggleReminder,
+                showBlocked = !notificationsOn && (refused || settings.reminderEnabled),
+                onPickTime = { pickingTime = true },
+            )
 
             SectionLabel(stringResource(R.string.settings_your_data))
             DataRow(
@@ -210,7 +238,13 @@ fun SettingsScreen(onImport: () -> Unit, onDeletedAll: () -> Unit) {
 }
 
 @Composable
-private fun PreferencesPanel(settings: AppSettings, viewModel: SettingsViewModel, onPickTime: () -> Unit) {
+private fun PreferencesPanel(
+    settings: AppSettings,
+    viewModel: SettingsViewModel,
+    onToggleReminder: (Boolean) -> Unit,
+    showBlocked: Boolean,
+    onPickTime: () -> Unit,
+) {
     KilnSurface(Modifier.fillMaxWidth(), depth = Depth.Mold2, shape = RoundedCornerShape(26.dp)) {
         Column(Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
             Row(
@@ -246,12 +280,20 @@ private fun PreferencesPanel(settings: AppSettings, viewModel: SettingsViewModel
             Hairline()
             KilnToggle(
                 checked = settings.reminderEnabled,
-                onCheckedChange = viewModel::setReminderEnabled,
+                onCheckedChange = onToggleReminder,
                 label = stringResource(R.string.settings_reminder),
                 modifier = Modifier.padding(vertical = 12.dp),
                 sublabel = stringResource(R.string.settings_reminder_sub, settings.reminderHour, settings.reminderMinute),
                 onSublabelClick = onPickTime,
             )
+            if (showBlocked) {
+                KilnText(
+                    stringResource(R.string.settings_reminder_blocked),
+                    Modifier.padding(bottom = 12.dp),
+                    style = Kiln.type.caption,
+                    color = Kiln.colors.err,
+                )
+            }
             Hairline()
             KilnToggle(
                 checked = settings.haptics,

@@ -309,6 +309,7 @@
     <string name="settings_more">More new cards</string>
     <string name="settings_reminder">Daily reminder</string>
     <string name="settings_reminder_sub">%1$02d:%2$02d · only when cards are due</string>
+    <string name="settings_reminder_blocked">Allow notifications for Recall in Android settings to get reminders.</string>
     <string name="settings_haptics">Haptic feedback</string>
     <string name="settings_reduce_motion">Reduce motion</string>
     <string name="settings_reduce_motion_sub">Also on when Android removes animations</string>
