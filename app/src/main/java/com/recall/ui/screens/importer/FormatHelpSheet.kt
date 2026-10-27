@@ -108,7 +108,7 @@ private fun ColumnGroup(label: String, columns: List<Pair<Int, Int>>) {
 }
 
 // A CSV row has few spaces, so a narrow screen would break it inside a word; this lets it break after commas.
-private fun csvLine(row: String) = row.replace(",", ",​")
+private fun csvLine(row: String) = row.replace(",", ",\u200B")
 
 @Composable
 private fun GroupLabel(text: String) {

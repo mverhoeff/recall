@@ -9,7 +9,7 @@ object CsvParser {
     private enum class State { Outside, InQuotes, AfterQuote }
 
     fun parse(text: String): List<CsvRow> {
-        val body = text.removePrefix("﻿")
+        val body = text.removePrefix("\uFEFF")
         val delimiter = detectDelimiter(body)
         val rows = mutableListOf<CsvRow>()
         val fields = mutableListOf<String>()
@@ -74,7 +74,7 @@ object CsvParser {
 
     /** Picks whichever delimiter the header line uses most; spreadsheets set to German export with `;`. */
     fun detectDelimiter(text: String): Char {
-        val header = text.removePrefix("﻿").lineSequence().firstOrNull { it.isNotBlank() } ?: return ','
+        val header = text.removePrefix("\uFEFF").lineSequence().firstOrNull { it.isNotBlank() } ?: return ','
         return delimiters.maxBy { d -> header.count { it == d } }
     }
 }

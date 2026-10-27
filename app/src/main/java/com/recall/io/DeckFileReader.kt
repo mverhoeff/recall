@@ -19,7 +19,7 @@ object DeckFileReader {
                 .onUnmappableCharacter(CodingErrorAction.REPORT)
                 .decode(ByteBuffer.wrap(bytes))
                 .toString()
-                .removePrefix("﻿")
+                .removePrefix("\uFEFF")
         } catch (e: CharacterCodingException) {
             return ParsedFile.Failure(NOT_UTF8)
         }
