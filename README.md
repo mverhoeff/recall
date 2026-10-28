@@ -60,7 +60,7 @@ Decks exported from Recall and Recall backups import as they are. `docs/samples/
 
 ## Building
 
-Requires Android Studio's bundled JDK (17 or newer) and the Android SDK. On Windows use `.\gradlew.bat`.
+Requires Android Studio's bundled JDK (17 or newer) and the Android SDK.
 
 | What | Command |
 |---|---|
@@ -70,8 +70,6 @@ Requires Android Studio's bundled JDK (17 or newer) and the Android SDK. On Wind
 | Instrumented tests | `./gradlew :app:connectedDebugAndroidTest` |
 | Install and launch | `./gradlew :app:installDebug && adb shell am start -n com.recall/.MainActivity` |
 | Lint | `./gradlew :app:lintDebug` |
-
-Release builds are signed with the keystore named in `keystore.properties` (see `keystore.properties.example`). Without that file the release APK is built unsigned.
 
 ## Design
 
