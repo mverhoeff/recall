@@ -7,6 +7,8 @@ import androidx.lifecycle.viewModelScope
 import com.recall.data.db.RecallDatabase
 import com.recall.data.repo.BackupRepository
 import com.recall.data.settings.AppSettings
+import com.recall.data.settings.DAILY_GOAL_MAX
+import com.recall.data.settings.DAILY_GOAL_STEP
 import com.recall.data.settings.SettingsRepository
 import com.recall.data.settings.ThemeMode
 import com.recall.ui.theme.ClayBody
@@ -45,6 +47,12 @@ class SettingsViewModel(
         val current = state.value ?: return
         val next = (current.newPerDay + by).coerceIn(0, NEW_PER_DAY_MAX)
         write { setNewPerDay(next) }
+    }
+
+    fun changeDailyGoal(by: Int) {
+        val current = state.value ?: return
+        val next = (current.dailyGoal + by).coerceIn(DAILY_GOAL_STEP, DAILY_GOAL_MAX)
+        write { setDailyGoal(next) }
     }
 
     fun setHaptics(on: Boolean) = write { setHaptics(on) }

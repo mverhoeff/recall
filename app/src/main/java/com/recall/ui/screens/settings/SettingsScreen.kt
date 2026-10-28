@@ -55,6 +55,8 @@ import com.recall.BuildConfig
 import com.recall.R
 import com.recall.RecallApp
 import com.recall.data.settings.AppSettings
+import com.recall.data.settings.DAILY_GOAL_MAX
+import com.recall.data.settings.DAILY_GOAL_STEP
 import com.recall.data.settings.ThemeMode
 import com.recall.notify.ReminderScheduler
 import com.recall.notify.notificationsAllowed
@@ -248,36 +250,29 @@ private fun PreferencesPanel(
 ) {
     KilnSurface(Modifier.fillMaxWidth(), depth = Depth.Mold2, shape = RoundedCornerShape(26.dp)) {
         Column(Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    KilnText(stringResource(R.string.settings_new_per_day), style = RowLabel)
-                    KilnText(stringResource(R.string.settings_new_per_day_sub), style = Kiln.type.caption, color = Kiln.colors.ink2)
-                }
-                KilnIconButton(
-                    KilnIcons.minus,
-                    stringResource(R.string.settings_fewer),
-                    { viewModel.changeNewPerDay(-NEW_PER_DAY_STEP) },
-                    enabled = settings.newPerDay > 0,
-                )
-                KilnText(
-                    settings.newPerDay.toString(),
-                    Modifier.widthIn(min = 36.dp),
-                    style = Kiln.type.h3,
-                    textAlign = TextAlign.Center,
-                )
-                KilnIconButton(
-                    KilnIcons.plus,
-                    stringResource(R.string.settings_more),
-                    { viewModel.changeNewPerDay(NEW_PER_DAY_STEP) },
-                    enabled = settings.newPerDay < NEW_PER_DAY_MAX,
-                )
-            }
+            StepperRow(
+                label = stringResource(R.string.settings_new_per_day),
+                sublabel = stringResource(R.string.settings_new_per_day_sub),
+                value = settings.newPerDay,
+                lowerLabel = stringResource(R.string.settings_fewer),
+                higherLabel = stringResource(R.string.settings_more),
+                onLower = { viewModel.changeNewPerDay(-NEW_PER_DAY_STEP) },
+                onHigher = { viewModel.changeNewPerDay(NEW_PER_DAY_STEP) },
+                canLower = settings.newPerDay > 0,
+                canHigher = settings.newPerDay < NEW_PER_DAY_MAX,
+            )
+            Hairline()
+            StepperRow(
+                label = stringResource(R.string.settings_daily_goal),
+                sublabel = stringResource(R.string.settings_daily_goal_sub),
+                value = settings.dailyGoal,
+                lowerLabel = stringResource(R.string.settings_goal_lower),
+                higherLabel = stringResource(R.string.settings_goal_higher),
+                onLower = { viewModel.changeDailyGoal(-DAILY_GOAL_STEP) },
+                onHigher = { viewModel.changeDailyGoal(DAILY_GOAL_STEP) },
+                canLower = settings.dailyGoal > DAILY_GOAL_STEP,
+                canHigher = settings.dailyGoal < DAILY_GOAL_MAX,
+            )
             Hairline()
             KilnToggle(
                 checked = settings.reminderEnabled,
@@ -314,6 +309,40 @@ private fun PreferencesPanel(
     }
 }
 
+
+@Composable
+private fun StepperRow(
+    label: String,
+    sublabel: String,
+    value: Int,
+    lowerLabel: String,
+    higherLabel: String,
+    onLower: () -> Unit,
+    onHigher: () -> Unit,
+    canLower: Boolean,
+    canHigher: Boolean,
+) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            KilnText(label, style = RowLabel)
+            KilnText(sublabel, style = Kiln.type.caption, color = Kiln.colors.ink2)
+        }
+        KilnIconButton(KilnIcons.minus, lowerLabel, onLower, enabled = canLower)
+        KilnText(
+            value.toString(),
+            Modifier.widthIn(min = 36.dp),
+            style = Kiln.type.h3,
+            textAlign = TextAlign.Center,
+        )
+        KilnIconButton(KilnIcons.plus, higherLabel, onHigher, enabled = canHigher)
+    }
+}
 @Composable
 private fun PaletteOption(palette: ClayBody, selected: Boolean, onClick: () -> Unit, modifier: Modifier) {
     val swatch = remember(palette) { KilnPalettes.colors(palette, dark = false) }

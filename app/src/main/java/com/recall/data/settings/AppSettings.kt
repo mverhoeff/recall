@@ -10,6 +10,7 @@ data class AppSettings(
     val mode: ThemeMode = ThemeMode.SYSTEM,
     val typePairing: TypePairing = TypePairing.B,
     val newPerDay: Int = 20,
+    val dailyGoal: Int = 30,
     val haptics: Boolean = true,
     val reduceMotion: Boolean = false,
     val reminderEnabled: Boolean = false,
@@ -21,6 +22,7 @@ data class AppSettings(
         val defaults = AppSettings()
         return copy(
             newPerDay = newPerDay.coerceIn(0, 100),
+            dailyGoal = dailyGoal.coerceIn(DAILY_GOAL_STEP, DAILY_GOAL_MAX),
             reminderHour = if (reminderHour in 0..23) reminderHour else defaults.reminderHour,
             reminderMinute = if (reminderMinute in ReminderMinutes) reminderMinute else defaults.reminderMinute,
         )
@@ -28,6 +30,9 @@ data class AppSettings(
 }
 
 val ReminderMinutes = listOf(0, 15, 30, 45)
+
+const val DAILY_GOAL_STEP = 10
+const val DAILY_GOAL_MAX = 200
 
 fun AppSettings.resolveDark(systemDark: Boolean): Boolean = when (mode) {
     ThemeMode.SYSTEM -> systemDark

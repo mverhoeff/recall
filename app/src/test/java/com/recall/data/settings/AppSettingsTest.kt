@@ -38,11 +38,13 @@ class AppSettingsTest {
 
     @Test
     fun numbersOutOfRangeAreSanitized() {
-        val s = AppSettings(newPerDay = 250, reminderHour = 24, reminderMinute = 10).sanitized()
+        val s = AppSettings(newPerDay = 250, dailyGoal = 500, reminderHour = 24, reminderMinute = 10).sanitized()
         assertEquals(100, s.newPerDay)
+        assertEquals(200, s.dailyGoal)
         assertEquals(19, s.reminderHour)
         assertEquals(0, s.reminderMinute)
         assertEquals(0, AppSettings(newPerDay = -5).sanitized().newPerDay)
+        assertEquals(10, AppSettings(dailyGoal = 0).sanitized().dailyGoal)
     }
 
     @Test
@@ -52,6 +54,7 @@ class AppSettingsTest {
         assertEquals(ThemeMode.SYSTEM, s.mode)
         assertEquals(TypePairing.B, s.typePairing)
         assertEquals(20, s.newPerDay)
+        assertEquals(30, s.dailyGoal)
         assertTrue(s.haptics)
         assertFalse(s.reduceMotion)
         assertFalse(s.reminderEnabled)

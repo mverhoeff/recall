@@ -18,6 +18,7 @@ class BackupCodecTest {
         mode = ThemeMode.DARK,
         typePairing = TypePairing.C,
         newPerDay = 35,
+        dailyGoal = 50,
         haptics = false,
         reduceMotion = true,
         reminderEnabled = true,

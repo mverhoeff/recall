@@ -48,13 +48,12 @@ import com.recall.ui.kiln.rise
 import com.recall.ui.nav.BottomBarSpace
 import com.recall.ui.theme.Kiln
 
-private const val DailyGoal = 30
-
 @Composable
 fun ProgressScreen() {
     val container = (LocalContext.current.applicationContext as RecallApp).container
-    val viewModel = viewModel { ProgressViewModel(container.stats) }
+    val viewModel = viewModel { ProgressViewModel(container.stats, container.settings) }
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val dailyGoal by viewModel.dailyGoal.collectAsStateWithLifecycle()
     val arrival = Modifier.arrival(state != null)
     val current = state ?: return
 
@@ -88,7 +87,7 @@ fun ProgressScreen() {
             return@LazyColumn
         }
         item(key = "tiles") { Tiles(current, Modifier.padding(top = 12.dp).rise(0)) }
-        item(key = "week") { WeekPanel(current, Modifier.padding(top = 12.dp).rise(1)) }
+        item(key = "week") { WeekPanel(current, dailyGoal, Modifier.padding(top = 12.dp).rise(1)) }
         if (current.decks.isNotEmpty()) {
             item(key = "accuracy-title") {
                 KilnText(
@@ -152,15 +151,15 @@ private fun StatPanel(value: String, title: String, caption: String?, withPebble
 }
 
 @Composable
-private fun WeekPanel(state: ProgressStats, modifier: Modifier = Modifier) {
+private fun WeekPanel(state: ProgressStats, goal: Int, modifier: Modifier = Modifier) {
     val todayIndex = (state.today.toEpochDay() - weekStart(state.today).toEpochDay()).toInt()
     KilnSurface(modifier.fillMaxWidth()) {
         Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 KilnText(stringResource(R.string.progress_daily_reviews), Modifier.weight(1f), style = Kiln.type.h3, heading = true)
-                KilnText(stringResource(R.string.progress_goal, DailyGoal), style = Kiln.type.caption, color = Kiln.colors.ink2)
+                KilnText(stringResource(R.string.progress_goal, goal), style = Kiln.type.caption, color = Kiln.colors.ink2)
             }
-            WeekBars(state.week, todayIndex, DailyGoal)
+            WeekBars(state.week, todayIndex, goal)
         }
     }
 }

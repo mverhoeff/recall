@@ -28,6 +28,8 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
 
     suspend fun setNewPerDay(count: Int) = dataStore.edit { it[NewPerDay] = count.coerceIn(0, 100) }
 
+    suspend fun setDailyGoal(goal: Int) = dataStore.edit { it[DailyGoal] = goal.coerceIn(DAILY_GOAL_STEP, DAILY_GOAL_MAX) }
+
     suspend fun setHaptics(on: Boolean) = dataStore.edit { it[Haptics] = on }
 
     suspend fun setReduceMotion(on: Boolean) = dataStore.edit { it[ReduceMotion] = on }
@@ -46,6 +48,7 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
             it[Mode] = clean.mode.key
             it[Pairing] = clean.typePairing.key
             it[NewPerDay] = clean.newPerDay
+            it[DailyGoal] = clean.dailyGoal
             it[Haptics] = clean.haptics
             it[ReduceMotion] = clean.reduceMotion
             it[ReminderEnabled] = clean.reminderEnabled
@@ -63,6 +66,7 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
         val Mode = stringPreferencesKey("mode")
         val Pairing = stringPreferencesKey("typePairing")
         val NewPerDay = intPreferencesKey("newPerDay")
+        val DailyGoal = intPreferencesKey("dailyGoal")
         val Haptics = booleanPreferencesKey("haptics")
         val ReduceMotion = booleanPreferencesKey("reduceMotion")
         val ReminderEnabled = booleanPreferencesKey("reminderEnabled")
@@ -76,6 +80,7 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
                 mode = enumFromKey(prefs[Mode], defaults.mode),
                 typePairing = enumFromKey(prefs[Pairing], defaults.typePairing),
                 newPerDay = prefs[NewPerDay] ?: defaults.newPerDay,
+                dailyGoal = prefs[DailyGoal] ?: defaults.dailyGoal,
                 haptics = prefs[Haptics] ?: defaults.haptics,
                 reduceMotion = prefs[ReduceMotion] ?: defaults.reduceMotion,
                 reminderEnabled = prefs[ReminderEnabled] ?: defaults.reminderEnabled,
