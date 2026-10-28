@@ -260,7 +260,13 @@ private fun TruthOption(truth: Boolean, look: Look, picked: Boolean, onClick: ()
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            KilnTile(tone = tone, size = TileSize.Md, icon = if (truth) KilnIcons.checkStrong else KilnIcons.closeStrong)
+            // Once checked, the icon marks right and wrong as on choice cards, not which tile is True.
+            val icon = when (look) {
+                Look.Right -> KilnIcons.checkStrong
+                Look.Wrong -> KilnIcons.closeStrong
+                Look.Idle, Look.Picked, Look.Dimmed -> if (truth) KilnIcons.checkStrong else KilnIcons.closeStrong
+            }
+            KilnTile(tone = tone, size = TileSize.Md, icon = icon)
             KilnText(
                 stringResource(if (truth) R.string.answer_true else R.string.answer_false),
                 style = Kiln.type.body.copy(fontSize = 16.sp, fontWeight = FontWeight.Bold),
